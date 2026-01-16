@@ -251,7 +251,7 @@ const Header = () => {
             </Link>
 
             {/* Mobile Search/Menu Toggle (Simplified for Mobile) */}
-            <button className="sm:hidden text-white">
+            <button className="sm:hidden text-white" onClick={() => setShowMobileMenu(true)}>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
               </svg>
@@ -259,6 +259,75 @@ const Header = () => {
           </nav>
         </div>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      <AnimatePresence>
+        {showMobileMenu && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMobileMenu(false)}
+              className="fixed inset-0 bg-black z-50 sm:hidden"
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+              className="fixed inset-y-0 left-0 w-[280px] bg-white z-50 shadow-xl overflow-y-auto sm:hidden"
+            >
+              {/* Header */}
+              <div className="bg-[#2874f0] p-4 text-white flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#2874f0]">
+                     <UserIcon />
+                   </div>
+                   <span className="font-semibold">Hello, Abhishek</span>
+                </div>
+                <button onClick={() => setShowMobileMenu(false)} className="text-white">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Menu Links */}
+              <div className="py-2">
+                {[
+                  { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon /> },
+                  { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon /> },
+                  { label: "Wishlist", link: "/dashboard?tab=wishlist", icon: <HeartIcon /> },
+                  { label: "Cart", link: "/cart", icon: <CartIcon /> },
+                  { label: "Rewards", link: "#", icon: <RewardIcon /> },
+                  { label: "Gift Cards", link: "#", icon: <GiftIcon /> },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.link}
+                    onClick={() => setShowMobileMenu(false)}
+                    className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                  >
+                    <span className="text-[#2874f0] w-5 h-5">{item.icon}</span>
+                    <span className="font-medium text-[15px]">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+              
+              {/* Extra Links */}
+              <div className="mt-2 border-t border-gray-100 py-2">
+                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Choose Language</Link>
+                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Offer Zone</Link>
+                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Sell on BuyKart</Link>
+              </div>
+
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Search Bar Section */}
       <div className="sm:hidden bg-[#2874f0] px-4 pb-2">
@@ -285,5 +354,6 @@ const OrderIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 
 const HeartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
 const RewardIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
 const GiftIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.65-.5-.65C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.41 12.25 12 8.66l3.59 3.59L17 10.83 14.92 8H20v6z"/></svg>
+const CartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
 
 export default Header;

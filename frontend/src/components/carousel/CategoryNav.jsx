@@ -45,7 +45,7 @@ const categories = [
   },
   { 
     id: 'flights', 
-    name: 'Flight Bookings', 
+    name: 'Flights', 
     image: 'category-flight.webp',
     link: '/products'
   },
@@ -66,18 +66,18 @@ const categories = [
 
 const CategoryNav = () => {
   return (
-    <nav className="bg-white shadow-md overflow-x-auto no-scrollbar">
-      <div className="max-w-[1248px] mx-auto min-w-[max-content] md:min-w-0">
-        <div className="flex items-center justify-between md:justify-between px-2">
-          {categories.map((category) => (
+    <nav className="bg-white shadow-md overflow-x-auto no-scrollbar w-full">
+      <div className="max-w-[1248px] mx-auto md:min-w-0">
+        <div className="flex items-center justify-between md:justify-between px-1 md:px-2">
+          {categories.map((category, index) => (
             <Link
               key={category.id}
               to={category.link}
-              className="flex flex-col items-center justify-start py-3 px-3 lg:px-6 group cursor-pointer hover:no-underline relative min-w-[80px]"
+              className={`flex-col items-center justify-start py-2 md:py-3 px-2 md:px-3 lg:px-6 group cursor-pointer hover:no-underline relative min-w-[64px] md:min-w-[80px] ${index < 4 ? 'flex' : index < 6 ? 'hidden md:flex' : 'hidden lg:flex'}`}
             >
               
               {/* Category Image */}
-              <div className="w-16 h-16 flex items-center justify-center mb-1">
+              <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center mb-1">
                 <img
                   src={category.image}
                   alt={category.name}
@@ -90,7 +90,7 @@ const CategoryNav = () => {
               
               {/* Category Name with Dropdown */}
               <div className="flex items-center gap-0.5">
-                <span className="text-[13px] font-medium text-gray-800 group-hover:text-[#2874f0] transition-colors whitespace-nowrap text-center">
+                <span className="text-[10px] md:text-[13px] font-medium text-gray-800 group-hover:text-[#2874f0] transition-colors whitespace-nowrap text-center">
                   {category.name}
                 </span>
                 {category.hasDropdown && (
