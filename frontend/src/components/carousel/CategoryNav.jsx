@@ -14,66 +14,66 @@ const categories = [
     id: 'mobiles', 
     name: 'Mobiles & Tablets', 
     image: 'category-mobiles.webp',
-    link: '/products?category=14'
+    link: '/products?category=38'
   },
   { 
     id: 'fashion', 
     name: 'Fashion', 
     image: 'category-fashion.webp',
     hasDropdown: true,
-    link: '/products?category=8'
+    link: '/products?category=32' // Mapping to Mens Shirts for now, or could use 45 (Womens Dresses)
   },
   { 
     id: 'electronics', 
     name: 'Electronics', 
     image: 'category-electronics.webp',
     hasDropdown: true,
-    link: '/products?category=17'
+    link: '/products?category=31'
   },
   { 
     id: 'jewelry', 
     name: 'Jewelry', 
     image: 'category-jewelry.webp',
-    link: '/products?category=22'
+    link: '/products?category=46'
   },
   { 
     id: 'home', 
     name: 'Home & Furniture', 
     image: 'category-home.webp',
     hasDropdown: true,
-    link: '/products?category=5'
+    link: '/products?category=27'
   },
   { 
     id: 'flights', 
     name: 'Flight Bookings', 
     image: 'category-flight.webp',
-    link: '#'
+    link: '/products'
   },
   { 
     id: 'beauty', 
     name: 'Beauty, Food..', 
     image: 'category-beauty.webp',
     hasDropdown: true,
-    link: '/products?category=1'
+    link: '/products?category=25'
   },
   { 
     id: 'grocery', 
     name: 'Grocery', 
     image: 'category-grocery.webp',
-    link: '/products?category=4'
+    link: '/products?category=28'
   },
 ]
 
 const CategoryNav = () => {
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-[1248px] mx-auto">
-        <div className="flex items-center justify-between">
+    <nav className="bg-white shadow-md overflow-x-auto no-scrollbar">
+      <div className="max-w-[1248px] mx-auto min-w-[max-content] md:min-w-0">
+        <div className="flex items-center justify-between md:justify-between px-2">
           {categories.map((category) => (
             <Link
               key={category.id}
               to={category.link}
-              className="flex flex-col items-center justify-start py-3 px-2 lg:px-4 group cursor-pointer hover:no-underline relative flex-1"
+              className="flex flex-col items-center justify-start py-3 px-3 lg:px-6 group cursor-pointer hover:no-underline relative min-w-[80px]"
             >
               
               {/* Category Image */}
@@ -94,7 +94,7 @@ const CategoryNav = () => {
                   {category.name}
                 </span>
                 {category.hasDropdown && (
-                  <ChevronDown className="w-3 h-3 text-gray-500" />
+                  <ChevronDown className="w-3 h-3 text-gray-500 hidden sm:block" />
                 )}
               </div>
             </Link>

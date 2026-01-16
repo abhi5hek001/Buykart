@@ -151,16 +151,16 @@ const PromoBanner = ({
 const Home = () => {
   // Fetch products by category
   const { data: allProducts } = useGetProductsQuery({})
-  const { data: watchProducts } = useGetProductsQuery({ category: "10" }) // Mens Watches
-  const { data: electronicsProducts } = useGetProductsQuery({ category: "7" }) // Laptops
-  const { data: smartphoneProducts } = useGetProductsQuery({ category: "14" }) // Smartphones
-  const { data: fashionProducts } = useGetProductsQuery({ category: "8" }) // Mens Shirts
-  const { data: womenFashionProducts } = useGetProductsQuery({ category: "21" }) // Womens Dresses
-  const { data: kitchenProducts } = useGetProductsQuery({ category: "6" }) // Kitchen
-  const { data: beautyProducts } = useGetProductsQuery({ category: "1" }) // Beauty
-  const { data: fragranceProducts } = useGetProductsQuery({ category: "2" }) // Fragrances
-  const { data: groceryProducts } = useGetProductsQuery({ category: "4" }) // Groceries
-  const { data: shoesProducts } = useGetProductsQuery({ category: "9" }) // Mens Shoes
+  const { data: watchProducts } = useGetProductsQuery({ category: "34" }) // Mens Watches
+  const { data: electronicsProducts } = useGetProductsQuery({ category: "31" }) // Laptops
+  const { data: smartphoneProducts } = useGetProductsQuery({ category: "38" }) // Smartphones
+  const { data: fashionProducts } = useGetProductsQuery({ category: "32" }) // Mens Shirts
+  const { data: womenFashionProducts } = useGetProductsQuery({ category: "45" }) // Womens Dresses
+  const { data: kitchenProducts } = useGetProductsQuery({ category: "30" }) // Kitchen
+  const { data: beautyProducts } = useGetProductsQuery({ category: "25" }) // Beauty
+  const { data: fragranceProducts } = useGetProductsQuery({ category: "26" }) // Fragrances
+  const { data: groceryProducts } = useGetProductsQuery({ category: "28" }) // Groceries
+  const { data: shoesProducts } = useGetProductsQuery({ category: "33" }) // Mens Shoes
 
   // Combine and filter products for different sections
   const watches = watchProducts?.data || []
@@ -196,14 +196,14 @@ const Home = () => {
           leftProducts={topOffers}
           rightProducts={electronics}
           leftLink="/products"
-          rightLink="/products?category=7"
+          rightLink="/products?category=31"
         />
 
         {/* Big Savings on Gadgets */}
         <ProductRowSection
           title="Big Savings on Gadgets"
           products={gadgets}
-          viewAllLink="/products?category=14"
+          viewAllLink="/products?category=38"
         />
 
         {/* Promo Banner - Flash Sale */}
@@ -219,21 +219,21 @@ const Home = () => {
         <ProductRowSection
           title="Fashion Trends"
           products={fashion.slice(0, 6)}
-          viewAllLink="/products?category=8"
+          viewAllLink="/products?category=32"
         />
 
         {/* Kitchen Essentials */}
         <ProductRowSection
           title="Kitchen Essentials"
           products={kitchen}
-          viewAllLink="/products?category=6"
+          viewAllLink="/products?category=30"
         />
 
         {/* Best of Decorations - Beauty & Fragrances */}
         <ProductRowSection
           title="Best of Beauty & Fragrances"
           products={beauty.slice(0, 6)}
-          viewAllLink="/products?category=1"
+          viewAllLink="/products?category=25"
         />
 
         {/* Promo Banner - Premium Membership */}
@@ -249,18 +249,18 @@ const Home = () => {
         <ProductRowSection
           title="Daily Essentials & Groceries"
           products={groceries}
-          viewAllLink="/products?category=4"
+          viewAllLink="/products?category=28"
         />
 
         {/* Brand Partners Section */}
         <section className="bg-white rounded-sm shadow-sm p-6">
           <h3 className="text-center text-gray-500 text-sm mb-4">Our Brand Partners</h3>
           <div className="flex items-center justify-center gap-8 flex-wrap opacity-60">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" className="h-6 grayscale hover:grayscale-0 transition" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg" alt="Samsung" className="h-6 grayscale hover:grayscale-0 transition" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" className="h-6 grayscale hover:grayscale-0 transition" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" className="h-6 grayscale hover:grayscale-0 transition" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" className="h-5 grayscale hover:grayscale-0 transition" />
+            <img src="amazon-logo.png" alt="Amazon" className="h-6 grayscale hover:grayscale-0 transition" />
+            <img src="samsung-logo.png" alt="Samsung" className="h-6 grayscale hover:grayscale-0 transition" />
+            <img src="apple-logo.png" alt="Apple" className="h-6 grayscale hover:grayscale-0 transition" />
+            <img src="google-logo.png" alt="Google" className="h-6 grayscale hover:grayscale-0 transition" />
+            <img src="netflix-logo.png" alt="Netflix" className="h-5 grayscale hover:grayscale-0 transition" />
           </div>
         </section>
 

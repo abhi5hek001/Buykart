@@ -22,7 +22,8 @@ app.set('trust proxy', 1);
 // Middleware
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'http://localhost:5173',              
+  'http://localhost:5173',
+  'http://localhost:4173',
 ];
 
 app.use(cors({
@@ -44,11 +45,11 @@ app.use(logger);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Buykart API is running!',
-        timestamp: new Date().toISOString()
-    });
+  res.json({
+    success: true,
+    message: 'Buykart API is running!',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // API Routes
@@ -62,10 +63,10 @@ app.use('/api/stock', stockRoutes);
 
 // 404 handler for unknown routes
 app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: 'Endpoint not found'
-    });
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found'
+  });
 });
 
 // Global error handler
@@ -74,7 +75,7 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`
+  console.log(`
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
 ║   🛒 Buykart Backend API Server                   ║
