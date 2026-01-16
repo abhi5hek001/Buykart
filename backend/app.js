@@ -21,6 +21,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'https://buykart.sahayabhishek.tech',
+  "https://sahayabhishek.tech",
   'http://localhost:5173',              
   'https://d14guvrkz04ph7.cloudfront.net' 
 ];
