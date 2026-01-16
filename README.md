@@ -142,7 +142,7 @@ cd frontend
 npm install
 
 # Create .env file
-echo "VITE_API_URL=http://localhost:3000/api" > .env
+echo "VITE_API_BASE_URL=http://localhost:3000/api" > .env
 
 # Start Dev Server
 npm run dev
@@ -165,7 +165,7 @@ EMAIL_PASS="your-app-password"
 
 ### Frontend (`/frontend/.env`)
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 ---
