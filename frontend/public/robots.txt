@@ -1,0 +1,14 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of private user pages
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /my-account
+Disallow: /wishlist
+Disallow: /api/
+
+# Link to your sitemap (update with your actual domain later)
+Sitemap: https://your-domain.com/sitemap.xml
