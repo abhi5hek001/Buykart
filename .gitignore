@@ -1,1 +1,5 @@
 .vscode
+
+todonode_modules/
+.env*
+.DS_Store
