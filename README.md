@@ -3,8 +3,7 @@
 Buykart is a modern, full-stack e-commerce application built with a mono-repo architecture. It features a responsive, premium user interface similar to major e-commerce platforms and a robust, scalable backend.
 
 ## 🚀 Live Demo
-- **Frontend**: [Your CloudFront/Domain URL Here]
-- **API**: [Your EC2/Load Balancer URL Here]
+- **Website**: [https://buykart.sahayabhishek.tech]
 
 ---
 
@@ -28,7 +27,7 @@ Buykart is a modern, full-stack e-commerce application built with a mono-repo ar
 - **Authentication**: JWT & Bcrypt
 
 ### Infrastructure & DevOps
-- **Containerization**: Docker & Docker Compose
+- **Containerization**: Docker
 - **CI/CD**: GitHub Actions
 - **Backend Cloud**: AWS EC2 (Dockerized)
 - **Frontend Cloud**: AWS S3 + CloudFront (Static Hosting)
@@ -63,15 +62,47 @@ We use GitHub Actions for automated, atomic deployments.
 
 ## 📂 Database Schema
 
-We use **Prisma ORM** with the following core models:
+We use **Prisma ORM** with MySQL. Below is the relational schema overview:
 
-- **Users**: Authentication & profile data
-- **Categories**: Hierarchical product categories
-- **Products**: Item details, stock, pricing, image URLs
-- **Cart**: Persistent user cart items
-- **Wishlist**: User saved items
-- **Orders**: Transactional data (Statuses: pending, confirmed, shipped, delivered, cancelled)
-- **OrderItems**: Individual line items for orders
+### 👤 User & Authentication
+| Model | PK / FK | Field | Type | Description |
+|-------|---------|-------|------|-------------|
+| **User** | 🔑 PK | `id` | Int | Unique User ID |
+| | | `email` | String | Unique email address |
+| | | `password` | String | Hashed password (Bcrypt) |
+
+### 📦 Product Management
+| Model | PK / FK | Field | Type | Relation |
+|-------|---------|-------|------|----------|
+| **Category** | 🔑 PK | `id` | Int | |
+| | | `name` | String | Category name (e.g., Electronics) |
+| **Product** | 🔑 PK | `id` | Int | |
+| | 🔗 FK | `categoryId` | Int | → **Category**(`id`) |
+| | | `price` | Decimal | Product price |
+| | | `stock` | Int | Inventory count |
+
+### 🛒 Shopping & Wishlist
+| Model | PK / FK | Field | Type | Relation |
+|-------|---------|-------|------|----------|
+| **Cart** | 🔑 PK | `id` | Int | |
+| | 🔗 FK | `userId` | Int | → **User**(`id`) |
+| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
+| | | `quantity` | Int | Item quantity |
+| **Wishlist** | 🔑 PK | `id` | Int | |
+| | 🔗 FK | `userId` | Int | → **User**(`id`) |
+| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
+
+### 🧾 Orders & Transactions
+| Model | PK / FK | Field | Type | Relation |
+|-------|---------|-------|------|----------|
+| **Order** | 🔑 PK | `id` | Int | |
+| | 🔗 FK | `userId` | Int | → **User**(`id`) |
+| | | `status` | Enum | Pending, Confirmed, Shipped, Delivered |
+| | | `total` | Decimal | Total order amount |
+| **OrderItem** | 🔑 PK | `id` | Int | |
+| | 🔗 FK | `orderId` | Int | → **Order**(`id`) |
+| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
+| | | `price` | Decimal | Price at time of purchase |
 
 ---
 
