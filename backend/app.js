@@ -17,25 +17,26 @@ const stockRoutes = require('./routes/stockRoutes');
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1);
 
 // Middleware
 const allowedOrigins = [
-  'https://buykart.sahayabhishek.tech',
-  "https://sahayabhishek.tech",
+  process.env.FRONTEND_URL,
   'http://localhost:5173',              
-  'https://d14guvrkz04ph7.cloudfront.net' 
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error('CORS policy: This origin is not allowed'), false);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked by CORS:", origin);
+      callback(new Error('CORS policy violation'));
     }
-    return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -72,7 +73,7 @@ app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
