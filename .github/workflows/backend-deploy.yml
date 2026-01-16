@@ -42,26 +42,27 @@ jobs:
       - name: Deploy on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # Login to Docker on the server
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # Force remove existing containers if they exist
-            docker rm -f dev dev-redis 2>/dev/null || true
-            
-            # Remove the old image to ensure a fresh pull
-            docker rmi abhi5hek001/buykart-backend:latest 2>/dev/null || true
+          # 1. Create a network (better than --link)
+          docker network create buykart-network 2>/dev/null || true
 
-            # Start Redis container
-            docker run -d --name dev-redis -p 6379:6379 redis:alpine
+          # 2. Stop and remove old containers
+          docker rm -f dev dev-redis 2>/dev/null || true
+              
+          # 3. Start Redis
+          docker run -d --name dev-redis --network buykart-network --restart always -p 6379:6379 redis:alpine
 
-            # Pull the fresh backend image
-            docker pull abhi5hek001/buykart-backend:latest
+          # 4. Pull and Start Backend
+          docker pull abhi5hek001/buykart-backend:latest
+          docker run -d \
+            --name dev \
+            --network buykart-network \
+            --restart always \
+            --env-file /home/${{ secrets.EC2_USERNAME }}/dev/.env \
+            -p 3000:3000 \
+            abhi5hek001/buykart-backend:latest
 
-            # Start the backend container
-            docker run -d \
-              --name dev \
-              --env-file /home/${{ secrets.EC2_USERNAME }}/dev/.env \
-              --link dev-redis:redis \
-              -p 3000:3000 \
-              abhi5hek001/buykart-backend:latest
+          # 5. CLEANUP: Delete all unused/dangling images
+          docker image prune -af
           EOF
