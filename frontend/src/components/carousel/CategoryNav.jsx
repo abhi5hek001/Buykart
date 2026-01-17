@@ -8,40 +8,40 @@ const categories = [
     name: 'Minutes', 
     image: 'category-minutes.webp',
     hasNew: true,
-    link: '/products'
+    link: '/products?category=30004'
   },
   { 
     id: 'mobiles', 
     name: 'Mobiles & Tablets', 
     image: 'category-mobiles.webp',
-    link: '/products?category=38'
+    link: '/products?category=30014'
   },
   { 
     id: 'fashion', 
     name: 'Fashion', 
     image: 'category-fashion.webp',
     hasDropdown: true,
-    link: '/products?category=32' // Mapping to Mens Shirts for now, or could use 45 (Womens Dresses)
+    link: '/products?category=30008'
   },
   { 
     id: 'electronics', 
     name: 'Electronics', 
     image: 'category-electronics.webp',
     hasDropdown: true,
-    link: '/products?category=31'
+    link: '/products?category=30007'
   },
   { 
     id: 'jewelry', 
     name: 'Jewelry', 
     image: 'category-jewelry.webp',
-    link: '/products?category=46'
+    link: '/products?category=30022'
   },
   { 
     id: 'home', 
     name: 'Home & Furniture', 
     image: 'category-home.webp',
     hasDropdown: true,
-    link: '/products?category=27'
+    link: '/products?category=30003'
   },
   { 
     id: 'flights', 
@@ -54,13 +54,13 @@ const categories = [
     name: 'Beauty, Food..', 
     image: 'category-beauty.webp',
     hasDropdown: true,
-    link: '/products?category=25'
+    link: '/products?category=30001'
   },
   { 
     id: 'grocery', 
     name: 'Grocery', 
     image: 'category-grocery.webp',
-    link: '/products?category=28'
+    link: '/products?category=30004'
   },
 ]
 
