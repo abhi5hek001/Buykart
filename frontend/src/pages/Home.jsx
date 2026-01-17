@@ -151,16 +151,16 @@ const PromoBanner = ({
 const Home = () => {
   // Fetch products by category
   const { data: allProducts } = useGetProductsQuery({})
-  const { data: watchProducts } = useGetProductsQuery({ category: "34" }) // Mens Watches
-  const { data: electronicsProducts } = useGetProductsQuery({ category: "31" }) // Laptops
-  const { data: smartphoneProducts } = useGetProductsQuery({ category: "38" }) // Smartphones
-  const { data: fashionProducts } = useGetProductsQuery({ category: "32" }) // Mens Shirts
-  const { data: womenFashionProducts } = useGetProductsQuery({ category: "45" }) // Womens Dresses
-  const { data: kitchenProducts } = useGetProductsQuery({ category: "30" }) // Kitchen
-  const { data: beautyProducts } = useGetProductsQuery({ category: "25" }) // Beauty
-  const { data: fragranceProducts } = useGetProductsQuery({ category: "26" }) // Fragrances
-  const { data: groceryProducts } = useGetProductsQuery({ category: "28" }) // Groceries
-  const { data: shoesProducts } = useGetProductsQuery({ category: "33" }) // Mens Shoes
+  const { data: watchProducts } = useGetProductsQuery({ category: "30010" }) // Mens Watches
+  const { data: electronicsProducts } = useGetProductsQuery({ category: "30007" }) // Laptops
+  const { data: smartphoneProducts } = useGetProductsQuery({ category: "30014" }) // Smartphones
+  const { data: fashionProducts } = useGetProductsQuery({ category: "30008" }) // Mens Shirts
+  const { data: womenFashionProducts } = useGetProductsQuery({ category: "30021" }) // Womens Dresses
+  const { data: kitchenProducts } = useGetProductsQuery({ category: "30006" }) // Kitchen
+  const { data: beautyProducts } = useGetProductsQuery({ category: "30001" }) // Beauty
+  const { data: fragranceProducts } = useGetProductsQuery({ category: "30002" }) // Fragrances
+  const { data: groceryProducts } = useGetProductsQuery({ category: "30004" }) // Groceries
+  const { data: shoesProducts } = useGetProductsQuery({ category: "30009" }) // Mens Shoes
 
   // Combine and filter products for different sections
   const watches = watchProducts?.data || []
@@ -196,14 +196,14 @@ const Home = () => {
           leftProducts={topOffers}
           rightProducts={electronics}
           leftLink="/products"
-          rightLink="/products?category=31"
+          rightLink="/products?category=30007"
         />
 
         {/* Big Savings on Gadgets */}
         <ProductRowSection
           title="Big Savings on Gadgets"
           products={gadgets}
-          viewAllLink="/products?category=38"
+          viewAllLink="/products?category=30014"
         />
 
         {/* Promo Banner - Flash Sale */}
@@ -219,21 +219,21 @@ const Home = () => {
         <ProductRowSection
           title="Fashion Trends"
           products={fashion.slice(0, 6)}
-          viewAllLink="/products?category=32"
+          viewAllLink="/products?category=30008"
         />
 
         {/* Kitchen Essentials */}
         <ProductRowSection
           title="Kitchen Essentials"
           products={kitchen}
-          viewAllLink="/products?category=30"
+          viewAllLink="/products?category=30006"
         />
 
         {/* Best of Decorations - Beauty & Fragrances */}
         <ProductRowSection
           title="Best of Beauty & Fragrances"
           products={beauty.slice(0, 6)}
-          viewAllLink="/products?category=25"
+          viewAllLink="/products?category=30001"
         />
 
         {/* Promo Banner - Premium Membership */}
@@ -249,7 +249,7 @@ const Home = () => {
         <ProductRowSection
           title="Daily Essentials & Groceries"
           products={groceries}
-          viewAllLink="/products?category=28"
+          viewAllLink="/products?category=30004"
         />
 
         {/* Brand Partners Section */}
