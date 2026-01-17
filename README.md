@@ -60,9 +60,18 @@ We use GitHub Actions for automated, atomic deployments.
 
 ---
 
+### ⚡ Caching Verification
+| CloudFront Miss | CloudFront Hit | Cloudflare Hit |
+|:---:|:---:|:---:|
+| ![CloudFront Miss](./cloudfront-miss.png) | ![CloudFront Hit](./cloudfront-hit.png) | ![Cloudflare Hit](./cloudlare-cache-hit.png) |
+
+---
+
 ## 📂 Database Schema
 
 We use **Prisma ORM** with MySQL. Below is the relational schema overview:
+
+![ER Diagram](./ERD.png)
 
 ### 👤 User & Authentication
 | Model | PK / FK | Field | Type | Description |
