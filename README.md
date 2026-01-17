@@ -65,6 +65,8 @@ We use GitHub Actions for automated, atomic deployments.
 |:---:|:---:|:---:|
 | ![CloudFront Miss](./cloudfront-miss.png) | ![CloudFront Hit](./cloudfront-hit.png) | ![Cloudflare Hit](./cloudlare-cache-hit.png) |
 
+![website-latency-graph.png](./website-latency-graph.png)
+
 ---
 
 ## 📂 Database Schema
