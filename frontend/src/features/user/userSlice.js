@@ -1,22 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
 
-// Load current user from localStorage
+// Cookie configuration for security
+const COOKIE_OPTIONS = {
+    expires: 30, // 30 days
+    secure: true, // Only send over HTTPS
+    sameSite: 'strict', // Prevent CSRF
+};
+
+// Load current user from cookies
 const loadUserFromStorage = () => {
     try {
-        const savedUser = localStorage.getItem('buykart_current_user');
+        const savedUser = Cookies.get('buykart_current_user');
         return savedUser ? JSON.parse(savedUser) : null;
     } catch {
         return null;
     }
 };
 
-// Save current user to localStorage
+// Save current user to cookies
 const saveUserToStorage = (user) => {
     try {
         if (user) {
-            localStorage.setItem('buykart_current_user', JSON.stringify(user));
+            Cookies.set('buykart_current_user', JSON.stringify(user), COOKIE_OPTIONS);
         } else {
-            localStorage.removeItem('buykart_current_user');
+            Cookies.remove('buykart_current_user');
         }
     } catch (error) {
         console.error('Failed to save user:', error);
