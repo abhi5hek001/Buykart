@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
 import { selectCartTotalQuantity } from "../features/cart/cartSlice"
 import { selectWishlistCount } from "../features/wishlist/wishlistSlice"
-import { useGetCategoriesQuery, useGetProductsQuery } from "../api/apiSlice"
+import { selectCurrentUser, setCurrentUser } from "../features/user/userSlice"
+import { useGetCategoriesQuery, useGetProductsQuery, useGetUsersQuery } from "../api/apiSlice"
 import { formatPrice } from "../utils/formatters"
 
 const Header = () => {
@@ -15,14 +16,29 @@ const Header = () => {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [showUserSelector, setShowUserSelector] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const dispatch = useDispatch()
   const cartCount = useSelector(selectCartTotalQuantity)
+  const currentUser = useSelector(selectCurrentUser)
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
+  const userSelectorRef = useRef(null)
 
   const { data: categoriesData } = useGetCategoriesQuery()
   const categories = categoriesData?.data || []
+
+  // Fetch users for dropdown
+  const { data: usersData } = useGetUsersQuery()
+  const users = usersData?.data || []
+
+  // Auto-select first user if none selected
+  useEffect(() => {
+    if (!currentUser && users.length > 0) {
+      dispatch(setCurrentUser(users[0]))
+    }
+  }, [currentUser, users, dispatch])
 
   // Debounced search query for autocomplete
   useEffect(() => {
@@ -47,6 +63,9 @@ const Header = () => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchDropdown(false)
       }
+      if (userSelectorRef.current && !userSelectorRef.current.contains(event.target)) {
+        setShowUserSelector(false)
+      }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
@@ -56,8 +75,14 @@ const Header = () => {
     setShowMobileMenu(false)
     setShowDropdown(false)
     setShowSearchDropdown(false)
+    setShowUserSelector(false)
     setSearchQuery("")
   }, [location])
+
+  const handleUserSelect = (user) => {
+    dispatch(setCurrentUser(user))
+    setShowUserSelector(false)
+  }
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -182,12 +207,55 @@ const Header = () => {
               onMouseEnter={() => setShowDropdown(true)}
               onMouseLeave={() => setShowDropdown(false)}
             >
-              <button
-                onClick={() => navigate('/dashboard?tab=account')}
-                className="bg-white text-[#2874f0] px-8 py-1 font-semibold text-[15px] rounded-sm hidden sm:block hover:bg-white/95 transition-all"
-              >
-                Abhishek
-              </button>
+              <div className="relative" ref={userSelectorRef}>
+                <button
+                  onClick={() => setShowUserSelector(!showUserSelector)}
+                  className="bg-white text-[#2874f0] px-4 py-1 font-semibold text-[15px] rounded-sm hidden sm:flex items-center gap-2 hover:bg-white/95 transition-all"
+                >
+                  {currentUser?.name || 'Select User'}
+                  <svg className={`w-3 h-3 transition-transform ${showUserSelector ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+
+                {/* User Selector Dropdown */}
+                <AnimatePresence>
+                  {showUserSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute left-0 top-full mt-2 w-56 bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden z-50"
+                    >
+                      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+                        <p className="text-xs text-gray-500 font-medium uppercase">Switch User</p>
+                      </div>
+                      <div className="max-h-60 overflow-y-auto">
+                        {users.map((user) => (
+                          <button
+                            key={user.id}
+                            onClick={() => handleUserSelect(user)}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
+                          >
+                            <div className="w-8 h-8 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                              {user.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
+                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            </div>
+                            {currentUser?.id === user.id && (
+                              <svg className="w-4 h-4 text-[#2874f0]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <AnimatePresence>
                 {showDropdown && (
@@ -202,7 +270,7 @@ const Header = () => {
                     
                     <div className="bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden">
                       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                         <span className="text-black text-sm font-medium">Hello, Abhishek</span>
+                         <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
                          <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
                       </div>
                       
@@ -286,7 +354,7 @@ const Header = () => {
                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#2874f0]">
                      <UserIcon />
                    </div>
-                   <span className="font-semibold">Hello, Abhishek</span>
+                   <span className="font-semibold">Hello, {currentUser?.name || 'Guest'}</span>
                 </div>
                 <button onClick={() => setShowMobileMenu(false)} className="text-white">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

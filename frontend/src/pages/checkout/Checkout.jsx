@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { selectCartItems, selectCartSubtotal, clearCart } from '../../features/cart/cartSlice';
+import { selectCurrentUser } from '../../features/user/userSlice';
 import { useCreateOrderMutation } from '../../api/apiSlice';
 import { formatPrice } from '../../utils/formatters';
 import Button from '../../components/common/Button';
@@ -12,6 +13,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const cartItems = useSelector(selectCartItems);
   const subtotal = useSelector(selectCartSubtotal);
+  const currentUser = useSelector(selectCurrentUser);
   const [createOrder, { isLoading }] = useCreateOrderMutation();
 
   const [formData, setFormData] = useState({
@@ -58,11 +60,17 @@ const Checkout = () => {
     
     if (!validateForm()) return;
 
+    // Check if user is selected
+    if (!currentUser?.id) {
+      alert('Please select a user from the header dropdown before placing an order.');
+      return;
+    }
+
     const shippingAddress = `${formData.name}, ${formData.address}, ${formData.city} - ${formData.pincode}, Phone: ${formData.phone}`;
 
     try {
       const orderData = {
-        user_id: 1, // Default user ID since no auth
+        user_id: currentUser.id, // Use selected user from Redux
         items: cartItems.map((item) => ({
           product_id: item.id,
           quantity: item.quantity,
