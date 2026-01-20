@@ -1,25 +1,40 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Load cart from localStorage
-const loadCartFromStorage = () => {
+// Get storage key for specific user
+const getStorageKey = (userId) => `buykart_cart_${userId || 'guest'}`;
+
+// Load cart from localStorage for a specific user
+const loadCartFromStorage = (userId) => {
     try {
-        const savedCart = localStorage.getItem('buykart_cart');
-        return savedCart ? JSON.parse(savedCart) : { items: [], totalQuantity: 0, subtotal: 0 };
+        const savedCart = localStorage.getItem(getStorageKey(userId));
+        return savedCart ? JSON.parse(savedCart) : { items: [], totalQuantity: 0, subtotal: 0, userId: userId || null };
     } catch {
-        return { items: [], totalQuantity: 0, subtotal: 0 };
+        return { items: [], totalQuantity: 0, subtotal: 0, userId: userId || null };
     }
 };
 
 // Save cart to localStorage
 const saveCartToStorage = (cart) => {
     try {
-        localStorage.setItem('buykart_cart', JSON.stringify(cart));
+        const key = getStorageKey(cart.userId);
+        localStorage.setItem(key, JSON.stringify(cart));
     } catch (error) {
         console.error('Failed to save cart:', error);
     }
 };
 
-const initialState = loadCartFromStorage();
+// Try to load from current user in localStorage
+const loadInitialState = () => {
+    try {
+        const savedUser = localStorage.getItem('buykart_current_user');
+        const user = savedUser ? JSON.parse(savedUser) : null;
+        return loadCartFromStorage(user?.id);
+    } catch {
+        return { items: [], totalQuantity: 0, subtotal: 0, userId: null };
+    }
+};
+
+const initialState = loadInitialState();
 
 const cartSlice = createSlice({
     name: 'cart',
@@ -85,10 +100,20 @@ const cartSlice = createSlice({
 
             saveCartToStorage(state);
         },
+
+        // Switch cart when user changes
+        switchUserCart: (state, action) => {
+            const userId = action.payload;
+            const loaded = loadCartFromStorage(userId);
+            state.items = loaded.items;
+            state.totalQuantity = loaded.totalQuantity;
+            state.subtotal = loaded.subtotal;
+            state.userId = userId;
+        },
     },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity, clearCart, switchUserCart } = cartSlice.actions;
 
 // Selectors
 export const selectCartItems = (state) => state.cart.items;

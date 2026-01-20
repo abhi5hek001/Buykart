@@ -1,25 +1,40 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Load wishlist from localStorage
-const loadWishlistFromStorage = () => {
+// Get storage key for specific user
+const getStorageKey = (userId) => `buykart_wishlist_${userId || 'guest'}`;
+
+// Load wishlist from localStorage for a specific user
+const loadWishlistFromStorage = (userId) => {
     try {
-        const saved = localStorage.getItem('buykart_wishlist');
-        return saved ? JSON.parse(saved) : { items: [] };
+        const saved = localStorage.getItem(getStorageKey(userId));
+        return saved ? JSON.parse(saved) : { items: [], userId: userId || null };
     } catch {
-        return { items: [] };
+        return { items: [], userId: userId || null };
     }
 };
 
 // Save wishlist to localStorage
 const saveWishlistToStorage = (wishlist) => {
     try {
-        localStorage.setItem('buykart_wishlist', JSON.stringify(wishlist));
+        const key = getStorageKey(wishlist.userId);
+        localStorage.setItem(key, JSON.stringify(wishlist));
     } catch (error) {
         console.error('Failed to save wishlist:', error);
     }
 };
 
-const initialState = loadWishlistFromStorage();
+// Try to load from current user in localStorage
+const loadInitialState = () => {
+    try {
+        const savedUser = localStorage.getItem('buykart_current_user');
+        const user = savedUser ? JSON.parse(savedUser) : null;
+        return loadWishlistFromStorage(user?.id);
+    } catch {
+        return { items: [], userId: null };
+    }
+};
+
+const initialState = loadInitialState();
 
 const wishlistSlice = createSlice({
     name: 'wishlist',
@@ -57,10 +72,18 @@ const wishlistSlice = createSlice({
             }
             saveWishlistToStorage(state);
         },
+
+        // Switch wishlist when user changes
+        switchUserWishlist: (state, action) => {
+            const userId = action.payload;
+            const loaded = loadWishlistFromStorage(userId);
+            state.items = loaded.items;
+            state.userId = userId;
+        },
     },
 });
 
-export const { addToWishlist, removeFromWishlist, clearWishlist, toggleWishlist } = wishlistSlice.actions;
+export const { addToWishlist, removeFromWishlist, clearWishlist, toggleWishlist, switchUserWishlist } = wishlistSlice.actions;
 
 // Selectors
 export const selectWishlistItems = (state) => state.wishlist.items;

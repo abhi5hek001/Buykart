@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
-import { selectCartTotalQuantity } from "../features/cart/cartSlice"
-import { selectWishlistCount } from "../features/wishlist/wishlistSlice"
+import { selectCartTotalQuantity, switchUserCart } from "../features/cart/cartSlice"
+import { selectWishlistCount, switchUserWishlist } from "../features/wishlist/wishlistSlice"
 import { selectCurrentUser, setCurrentUser } from "../features/user/userSlice"
 import { useGetCategoriesQuery, useGetProductsQuery, useGetUsersQuery } from "../api/apiSlice"
 import { formatPrice } from "../utils/formatters"
@@ -34,7 +34,10 @@ const Header = () => {
   // Auto-select first user if none selected
   useEffect(() => {
     if (!currentUser && users.length > 0) {
-      dispatch(setCurrentUser(users[0]))
+      const firstUser = users[0]
+      dispatch(setCurrentUser(firstUser))
+      dispatch(switchUserCart(firstUser.id))
+      dispatch(switchUserWishlist(firstUser.id))
     }
   }, [currentUser, users, dispatch])
 
@@ -75,7 +78,8 @@ const Header = () => {
 
   const handleUserSelect = (user) => {
     dispatch(setCurrentUser(user))
-    setShowUserSelector(false)
+    dispatch(switchUserCart(user.id))
+    dispatch(switchUserWishlist(user.id))
   }
 
   const handleSearch = (e) => {
