@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { selectWishlistItems, removeFromWishlist } from '../../features/wishlist/wishlistSlice';
 import { addToCart } from '../../features/cart/cartSlice';
-import { useGetUsersQuery, useGetOrdersByUserQuery } from '../../api/apiSlice';
+import { selectCurrentUser } from '../../features/user/userSlice';
+import { useGetOrdersByUserQuery } from '../../api/apiSlice';
 import { formatPrice } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Spinner from '../../components/common/Spinner';
@@ -26,10 +27,9 @@ const Dashboard = () => {
 
   const dispatch = useDispatch();
   const wishlistItems = useSelector(selectWishlistItems);
-
-  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery();
-  const users = usersData?.data || [];
-  const user = users[0] || null;
+  
+  // Use the selected user from Redux instead of first user from API
+  const user = useSelector(selectCurrentUser);
 
   const { data: ordersData, isLoading: ordersLoading } = useGetOrdersByUserQuery(user?.id, {
     skip: !user?.id,
@@ -85,21 +85,13 @@ const Dashboard = () => {
     }
   };
 
-  if (usersLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-12 flex justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   if (!user) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="bg-white rounded-sm shadow-sm p-8 text-center">
           <div className="text-6xl mb-4">👤</div>
-          <h2 className="text-xl font-medium text-gray-800 mb-2">No user found</h2>
-          <p className="text-gray-500 mb-4">Please run the seed script to create users.</p>
+          <h2 className="text-xl font-medium text-gray-800 mb-2">No user selected</h2>
+          <p className="text-gray-500 mb-4">Please select a user from the header dropdown.</p>
         </div>
       </div>
     );

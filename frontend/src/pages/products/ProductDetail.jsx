@@ -92,7 +92,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 p-4 sm:p-6">
             {/* Image Section */}
             <div className="space-y-4">
-              <div className="border border-gray-200 rounded-sm p-4 bg-white sticky top-28">
+              <div className="border border-gray-200 rounded-sm p-4 bg-white">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -133,8 +133,8 @@ const ProductDetail = () => {
                 </motion.div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 sm:gap-4 sticky top-[420px]">
+              {/* Action Buttons - Fixed below image */}
+              <div className="flex gap-3 sm:gap-4">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
                   <Button
                     variant="secondary"

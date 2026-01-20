@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGetOrderByIdQuery } from '../../api/apiSlice';
 import { formatPrice } from '../../utils/formatters';
 import Button from '../../components/common/Button';
@@ -11,8 +12,20 @@ const OrderConfirmation = () => {
   const { data, isLoading, error } = useGetOrderByIdQuery(id);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(true);
 
   const order = data?.data;
+  
+  // Calculate supercoins earned (1 coin per 100 spent)
+  const supercoinsEarned = order ? Math.floor(Number(order.totalAmount) / 100) : 0;
+  
+  // Hide celebration after 4 seconds
+  useEffect(() => {
+    if (showCelebration && order) {
+      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showCelebration, order]);
 
   if (isLoading) {
     return (
@@ -60,7 +73,118 @@ const OrderConfirmation = () => {
   const discount = listingPrice - subtotal;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen relative overflow-hidden">
+      {/* SuperCoin Celebration Animation */}
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowCelebration(false)}
+          >
+            {/* Confetti particles */}
+            {[...Array(30)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ 
+                  x: 0, 
+                  y: 0, 
+                  scale: 0,
+                  rotate: 0
+                }}
+                animate={{ 
+                  x: (Math.random() - 0.5) * 400,
+                  y: (Math.random() - 0.5) * 400,
+                  scale: [0, 1, 0.5],
+                  rotate: Math.random() * 720 - 360
+                }}
+                transition={{ 
+                  duration: 2,
+                  delay: Math.random() * 0.5,
+                  ease: "easeOut"
+                }}
+                className="absolute w-3 h-3 rounded-full"
+                style={{
+                  backgroundColor: ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'][i % 6]
+                }}
+              />
+            ))}
+            
+            {/* Main celebration card */}
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: "spring", damping: 15 }}
+              className="bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-2xl p-1 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-white rounded-xl p-8 text-center min-w-[320px]">
+                {/* Coin animation */}
+                <motion.div
+                  animate={{ 
+                    rotateY: [0, 360],
+                    scale: [1, 1.2, 1]
+                  }}
+                  transition={{ 
+                    rotateY: { duration: 2, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 1, repeat: Infinity }
+                  }}
+                  className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full flex items-center justify-center shadow-lg"
+                >
+                  <span className="text-3xl font-bold text-yellow-800">S</span>
+                </motion.div>
+                
+                <motion.h2
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-2xl font-bold text-gray-800 mb-2"
+                >
+                  🎉 Order Placed!
+                </motion.h2>
+                
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mb-4"
+                >
+                  <p className="text-gray-600 text-sm mb-2">You earned</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                      {supercoinsEarned}
+                    </span>
+                    <span className="text-lg font-semibold text-yellow-600">SuperCoins</span>
+                  </div>
+                </motion.div>
+                
+                <motion.p
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="text-sm text-gray-500"
+                >
+                  Use them for exclusive rewards!
+                </motion.p>
+                
+                <motion.button
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  onClick={() => setShowCelebration(false)}
+                  className="mt-6 px-6 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold rounded-full hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md"
+                >
+                  View Order
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Breadcrumb */}
         <nav className="text-sm mb-4">

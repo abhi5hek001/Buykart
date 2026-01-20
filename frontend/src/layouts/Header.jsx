@@ -16,7 +16,6 @@ const Header = () => {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
-  const [showUserSelector, setShowUserSelector] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
@@ -24,7 +23,6 @@ const Header = () => {
   const currentUser = useSelector(selectCurrentUser)
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
-  const userSelectorRef = useRef(null)
 
   const { data: categoriesData } = useGetCategoriesQuery()
   const categories = categoriesData?.data || []
@@ -63,9 +61,6 @@ const Header = () => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchDropdown(false)
       }
-      if (userSelectorRef.current && !userSelectorRef.current.contains(event.target)) {
-        setShowUserSelector(false)
-      }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
@@ -75,7 +70,6 @@ const Header = () => {
     setShowMobileMenu(false)
     setShowDropdown(false)
     setShowSearchDropdown(false)
-    setShowUserSelector(false)
     setSearchQuery("")
   }, [location])
 
@@ -207,42 +201,48 @@ const Header = () => {
               onMouseEnter={() => setShowDropdown(true)}
               onMouseLeave={() => setShowDropdown(false)}
             >
-              <div className="relative" ref={userSelectorRef}>
-                <button
-                  onClick={() => setShowUserSelector(!showUserSelector)}
-                  className="bg-white text-[#2874f0] px-4 py-1 font-semibold text-[15px] rounded-sm hidden sm:flex items-center gap-2 hover:bg-white/95 transition-all"
-                >
-                  {currentUser?.name || 'Select User'}
-                  <svg className={`w-3 h-3 transition-transform ${showUserSelector ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
+              <button
+                className="bg-white text-[#2874f0] px-4 py-1 font-semibold text-[15px] rounded-sm hidden sm:flex items-center gap-2 hover:bg-white/95 transition-all"
+              >
+                {currentUser?.name || 'Select User'}
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
 
-                {/* User Selector Dropdown */}
-                <AnimatePresence>
-                  {showUserSelector && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute left-0 top-full mt-2 w-56 bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden z-50"
-                    >
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-1/2 -translate-x-1/2 mt-0 pt-3 w-64 z-50"
+                  >
+                    {/* Tooltip Arrow */}
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-10 border-l-transparent border-r-10 border-r-transparent border-b-10 border-white shadow-sm" />
+                    
+                    <div className="bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                         <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
+                         <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
+                      </div>
+                      
+                      {/* User Selection Section */}
                       <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
                         <p className="text-xs text-gray-500 font-medium uppercase">Switch User</p>
                       </div>
-                      <div className="max-h-60 overflow-y-auto">
+                      <div className="max-h-40 overflow-y-auto">
                         {users.map((user) => (
                           <button
                             key={user.id}
                             onClick={() => handleUserSelect(user)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
+                            className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
                           >
-                            <div className="w-8 h-8 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                            <div className="w-7 h-7 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-xs font-semibold">
                               {user.name?.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
                             </div>
                             {currentUser?.id === user.id && (
                               <svg className="w-4 h-4 text-[#2874f0]" fill="currentColor" viewBox="0 0 20 20">
@@ -252,29 +252,9 @@ const Header = () => {
                           </button>
                         ))}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <AnimatePresence>
-                {showDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute left-1/2 -translate-x-1/2 mt-0 pt-3 w-60 z-50"
-                  >
-                    {/* Tooltip Arrow */}
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-white shadow-sm" />
-                    
-                    <div className="bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden">
-                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                         <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
-                         <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
-                      </div>
                       
-                      <div className="flex flex-col">
+                      {/* Menu Links */}
+                      <div className="flex flex-col border-t border-gray-100">
                         {[
                           { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon /> },
                           { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon /> },
@@ -285,7 +265,7 @@ const Header = () => {
                           <Link
                             key={item.label}
                             to={item.link}
-                            className="flex items-center gap-3 px-4 py-3 text-[14px] text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                            className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                           >
                             <span className="text-[#2874f0]">{item.icon}</span>
                             {item.label}
