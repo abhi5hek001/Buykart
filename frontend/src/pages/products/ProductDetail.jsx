@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGetProductByIdQuery } from "../../api/apiSlice"
+import { useGetProductByIdQuery, useGetProductsQuery } from "../../api/apiSlice"
 import { addToCart } from "../../features/cart/cartSlice"
 import { toggleWishlist, selectIsInWishlist } from "../../features/wishlist/wishlistSlice"
 import { formatPrice } from "../../utils/formatters"
@@ -22,6 +22,13 @@ const ProductDetail = () => {
   const { data, isLoading, error } = useGetProductByIdQuery(id)
   const product = data?.data
   const isInWishlist = useSelector(selectIsInWishlist(Number(id)))
+
+  // Fetch related products from the same category
+  const { data: relatedData } = useGetProductsQuery(
+    { category: product?.categoryId },
+    { skip: !product?.categoryId }
+  )
+  const relatedProducts = relatedData?.data?.filter(p => p.id !== product?.id)?.slice(0, 6) || []
 
   const handleAddToCart = () => {
     if (product) {
@@ -338,6 +345,78 @@ const ProductDetail = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* You might be interested in - Related Products */}
+        {relatedProducts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-6 bg-white rounded-sm shadow-sm p-4 sm:p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                You might be interested in
+              </h2>
+              <Link 
+                to={`/products?category=${product.categoryId}`}
+                className="text-[#2874f0] text-sm font-medium hover:underline"
+              >
+                View All
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {relatedProducts.map((relatedProduct) => {
+                const relatedOriginalPrice = Math.round(Number(relatedProduct.price) * 1.2)
+                const relatedDiscount = Math.round(((relatedOriginalPrice - relatedProduct.price) / relatedOriginalPrice) * 100)
+                
+                return (
+                  <Link
+                    key={relatedProduct.id}
+                    to={`/products/${relatedProduct.id}`}
+                    className="group bg-white border border-gray-100 rounded-sm p-3 hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="relative aspect-square mb-3 overflow-hidden">
+                      <img
+                        src={relatedProduct.imageUrl || "/placeholder.svg?height=150&width=150"}
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg?height=150&width=150"
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-sm text-gray-800 line-clamp-2 mb-1 group-hover:text-[#2874f0] transition-colors">
+                        {relatedProduct.name}
+                      </h3>
+                      <div className="flex items-baseline gap-1 flex-wrap">
+                        <span className="text-sm font-semibold text-gray-900">
+                          {formatPrice(relatedProduct.price)}
+                        </span>
+                        <span className="text-xs text-gray-400 line-through">
+                          {formatPrice(relatedOriginalPrice)}
+                        </span>
+                        <span className="text-xs text-[#388e3c] font-medium">
+                          {relatedDiscount}% off
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="bg-[#388e3c] text-white text-xs px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
+                          4.2
+                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
       </div>
     </PageTransition>
   )
