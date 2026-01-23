@@ -3,6 +3,8 @@ import { Link } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { addToCart } from "../../features/cart/cartSlice"
 import { toggleWishlist, selectIsInWishlist } from "../../features/wishlist/wishlistSlice"
+import { StockBadge } from '../stock/StockIndicator';
+
 
 const formatPrice = (price) => {
   return `₹${Number(price).toLocaleString('en-IN')}`
@@ -84,18 +86,7 @@ const ProductCard = ({ product, index = 0 }) => {
           </button>
 
           {/* Stock Badge */}
-          {stock <= 5 && stock > 0 && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-medium">
-              Only {stock} left
-            </span>
-          )}
-
-          {/* Discount Badge */}
-          {discountPercent >= 15 && stock > 0 && (
-            <span className="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
-              {discountPercent}% OFF
-            </span>
-          )}
+          <StockBadge productId={id} />
 
           {stock === 0 && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

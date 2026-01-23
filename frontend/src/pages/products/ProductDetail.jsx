@@ -11,6 +11,7 @@ import { formatPrice } from "../../utils/formatters"
 import Button from "../../components/common/Button"
 import Spinner from "../../components/common/Spinner"
 import PageTransition from "../../components/common/PageTransition"
+import { StockIndicator } from '../../components/stock/StockIndicator';
 
 const ProductDetail = () => {
   const { id } = useParams()
@@ -257,19 +258,9 @@ const ProductDetail = () => {
               </div>
 
               {/* Stock Status */}
-              <div className="flex items-center gap-3">
-                {product.stock > 0 ? (
-                  <>
-                    <span className="w-3 h-3 bg-[#388e3c] rounded-full animate-pulse"></span>
-                    <span className="text-[#388e3c] font-medium">In Stock</span>
-                    <span className="text-gray-500">({product.stock} units available)</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                    <span className="text-red-600 font-medium">Out of Stock</span>
-                  </>
-                )}
+              <div className="mb-6">
+                <div className="text-gray-700 mb-1 text-sm">Stock Status</div>  
+                <StockIndicator productId={product.id} />
               </div>
 
               {/* Quantity Selector */}
@@ -282,7 +273,7 @@ const ProductDetail = () => {
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors"
                     >
-                      −
+                      -
                     </motion.button>
                     <span className="px-4 py-1.5 border-x border-gray-300 font-medium">{quantity}</span>
                     <motion.button
