@@ -34,6 +34,7 @@ model User {
   orders    Order[]
   cart      Cart[]
   wishlist  Wishlist[]
+  role      String     @default("user") @db.VarChar(10)
 
   @@map("users")
 }
