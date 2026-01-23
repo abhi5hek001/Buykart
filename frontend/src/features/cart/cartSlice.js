@@ -1,40 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
-
-// Cookie configuration for security
-const COOKIE_OPTIONS = {
-    expires: 30, // 30 days
-    secure: true, // Only send over HTTPS
-    sameSite: 'strict', // Prevent CSRF
-};
 
 // Get storage key for specific user
 const getStorageKey = (userId) => `buykart_cart_${userId || 'guest'}`;
 
-// Load cart from cookies for a specific user
+// Load cart from localStorage for a specific user
 const loadCartFromStorage = (userId) => {
     try {
-        const savedCart = Cookies.get(getStorageKey(userId));
+        const savedCart = localStorage.getItem(getStorageKey(userId));
         return savedCart ? JSON.parse(savedCart) : { items: [], totalQuantity: 0, subtotal: 0, userId: userId || null };
     } catch {
         return { items: [], totalQuantity: 0, subtotal: 0, userId: userId || null };
     }
 };
 
-// Save cart to cookies
+// Save cart to localStorage
 const saveCartToStorage = (cart) => {
     try {
         const key = getStorageKey(cart.userId);
-        Cookies.set(key, JSON.stringify(cart), COOKIE_OPTIONS);
+        localStorage.setItem(key, JSON.stringify(cart));
     } catch (error) {
         console.error('Failed to save cart:', error);
     }
 };
 
-// Try to load from current user in cookies
+// Try to load from current user in localStorage
 const loadInitialState = () => {
     try {
-        const savedUser = Cookies.get('buykart_current_user');
+        const savedUser = localStorage.getItem('buykart_current_user');
         const user = savedUser ? JSON.parse(savedUser) : null;
         return loadCartFromStorage(user?.id);
     } catch {

@@ -1,40 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
-
-// Cookie configuration for security
-const COOKIE_OPTIONS = {
-    expires: 30, // 30 days
-    secure: true, // Only send over HTTPS
-    sameSite: 'strict', // Prevent CSRF
-};
 
 // Get storage key for specific user
 const getStorageKey = (userId) => `buykart_wishlist_${userId || 'guest'}`;
 
-// Load wishlist from cookies for a specific user
+// Load wishlist from localStorage for a specific user
 const loadWishlistFromStorage = (userId) => {
     try {
-        const saved = Cookies.get(getStorageKey(userId));
+        const saved = localStorage.getItem(getStorageKey(userId));
         return saved ? JSON.parse(saved) : { items: [], userId: userId || null };
     } catch {
         return { items: [], userId: userId || null };
     }
 };
 
-// Save wishlist to cookies
+// Save wishlist to localStorage
 const saveWishlistToStorage = (wishlist) => {
     try {
         const key = getStorageKey(wishlist.userId);
-        Cookies.set(key, JSON.stringify(wishlist), COOKIE_OPTIONS);
+        localStorage.setItem(key, JSON.stringify(wishlist));
     } catch (error) {
         console.error('Failed to save wishlist:', error);
     }
 };
 
-// Try to load from current user in cookies
+// Try to load from current user in localStorage
 const loadInitialState = () => {
     try {
-        const savedUser = Cookies.get('buykart_current_user');
+        const savedUser = localStorage.getItem('buykart_current_user');
         const user = savedUser ? JSON.parse(savedUser) : null;
         return loadWishlistFromStorage(user?.id);
     } catch {
