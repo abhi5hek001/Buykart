@@ -5,9 +5,35 @@ export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
         baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://buykart-backend.sahayabhishek.tech/api',
+        prepareHeaders: (headers, { getState }) => {
+            const token = getState().user.token;
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
     tagTypes: ['Products', 'Product', 'Categories', 'Orders', 'Cart', 'Users'],
     endpoints: (builder) => ({
+        // Auth
+        signup: builder.mutation({
+            query: (data) => ({
+                url: '/auth/signup',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Users'],
+        }),
+
+        login: builder.mutation({
+            query: (credentials) => ({
+                url: '/auth/signin',
+                method: 'POST',
+                body: credentials,
+            }),
+            invalidatesTags: ['Users', 'Cart', 'Wishlist', 'Orders'],
+        }),
+
         // Products
         getProducts: builder.query({
             query: (params = {}) => {
@@ -36,11 +62,6 @@ export const apiSlice = createApi({
             providesTags: ['Users'],
         }),
 
-        getUserById: builder.query({
-            query: (id) => `/users/${id}`,
-            providesTags: (result, error, id) => [{ type: 'Users', id }],
-        }),
-
         // Orders
         createOrder: builder.mutation({
             query: (orderData) => ({
@@ -48,15 +69,16 @@ export const apiSlice = createApi({
                 method: 'POST',
                 body: orderData,
             }),
-            invalidatesTags: ['Orders'],
+            invalidatesTags: ['Orders', 'Cart'],
         }),
 
         getOrderById: builder.query({
             query: (id) => `/orders/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Orders', id }],
         }),
 
         getOrdersByUser: builder.query({
-            query: (userId) => `/orders/user/${userId}`,
+            query: () => `/orders/my-orders`,
             providesTags: ['Orders'],
         }),
 
@@ -68,11 +90,12 @@ export const apiSlice = createApi({
     }),
 });
 export const {
+    useSignupMutation,
+    useLoginMutation,
     useGetProductsQuery,
     useGetProductByIdQuery,
     useGetCategoriesQuery,
     useGetUsersQuery,
-    useGetUserByIdQuery,
     useCreateOrderMutation,
     useGetOrderByIdQuery,
     useGetOrdersByUserQuery,

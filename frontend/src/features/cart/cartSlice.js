@@ -26,10 +26,10 @@ const saveCartToStorage = (cart) => {
 // Try to load from current user in localStorage
 const loadInitialState = () => {
     try {
-        const savedUser = localStorage.getItem('buykart_current_user');
-        const user = savedUser ? JSON.parse(savedUser) : null;
+        const savedAuth = localStorage.getItem('buykart_auth');
+        const auth = savedAuth ? JSON.parse(savedAuth) : null;
         // Ensure we only load data for string IDs (new format)
-        return loadCartFromStorage(typeof user?.id === 'string' ? user.id : null);
+        return loadCartFromStorage(typeof auth?.user?.id === 'string' ? auth.user.id : null);
     } catch {
         return { items: [], totalQuantity: 0, subtotal: 0, userId: null };
     }

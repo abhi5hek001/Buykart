@@ -1,68 +1,74 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Load current user from localStorage
-const loadUserFromStorage = () => {
+// Load auth state from localStorage
+const loadAuthFromStorage = () => {
     try {
-        const savedUser = localStorage.getItem('buykart_current_user');
-        if (savedUser) {
-            const user = JSON.parse(savedUser);
-            // Validation: Ensure ID is a string (part of the new production ID scheme)
-            // If it's a number (legacy), clear it to force a fresh selection
-            if (typeof user?.id !== 'string') {
-                localStorage.removeItem('buykart_current_user');
-                return null;
+        const savedAuth = localStorage.getItem('buykart_auth');
+        if (savedAuth) {
+            const auth = JSON.parse(savedAuth);
+            // Validation: Ensure user ID is a string (part of the new production ID scheme)
+            if (typeof auth.user?.id !== 'string' || !auth.token) {
+                localStorage.removeItem('buykart_auth');
+                return { currentUser: null, token: null };
             }
-            return user;
+            return { currentUser: auth.user, token: auth.token };
         }
-        return null;
+        return { currentUser: null, token: null };
     } catch {
-        return null;
+        return { currentUser: null, token: null };
     }
 };
 
-// Save current user to localStorage
-const saveUserToStorage = (user) => {
+// Save auth state to localStorage
+const saveAuthToStorage = (user, token) => {
     try {
-        if (user) {
-            localStorage.setItem('buykart_current_user', JSON.stringify(user));
+        if (user && token) {
+            localStorage.setItem('buykart_auth', JSON.stringify({ user, token }));
         } else {
-            localStorage.removeItem('buykart_current_user');
+            localStorage.removeItem('buykart_auth');
         }
     } catch (error) {
-        console.error('Failed to save user:', error);
+        console.error('Failed to save auth:', error);
     }
 };
 
-const initialState = {
-    currentUser: loadUserFromStorage(),
-};
+const initialState = loadAuthFromStorage();
 
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setCurrentUser: (state, action) => {
-            state.currentUser = action.payload;
-            saveUserToStorage(action.payload);
+        setCredentials: (state, action) => {
+            const { user, token } = action.payload;
+            state.currentUser = user;
+            state.token = token;
+            saveAuthToStorage(user, token);
         },
-        clearCurrentUser: (state) => {
+        logout: (state) => {
             state.currentUser = null;
-            saveUserToStorage(null);
+            state.token = null;
+            saveAuthToStorage(null, null);
         },
     },
 });
 
-export const { setCurrentUser, clearCurrentUser } = userSlice.actions;
+export const { setCredentials, logout } = userSlice.actions;
 
 // Selectors
 export const selectCurrentUser = (state) => state.user.currentUser;
+export const selectToken = (state) => state.user.token;
+export const selectIsAuthenticated = (state) => !!state.user.token;
 
-// Thunk to initialize listeners
+// Thunk to initialize listeners for cross-tab sync
 export const setupUserListeners = () => (dispatch) => {
     window.addEventListener('storage', (e) => {
-        if (e.key === 'buykart_current_user') {
-            const newUser = e.newValue ? JSON.parse(e.newValue) : null;
-            dispatch(setCurrentUser(newUser));
+        if (e.key === 'buykart_auth') {
+            const newAuth = e.newValue ? JSON.parse(e.newValue) : null;
+            if (newAuth) {
+                dispatch(setCredentials({ user: newAuth.user, token: newAuth.token }));
+            } else {
+                dispatch(logout());
+            }
         }
     });
 };
