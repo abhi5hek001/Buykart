@@ -11,7 +11,6 @@ import { formatPrice } from "../../utils/formatters"
 import Button from "../../components/common/Button"
 import Spinner from "../../components/common/Spinner"
 import PageTransition from "../../components/common/PageTransition"
-import { StockIndicator } from '../../components/stock/StockIndicator';
 
 const ProductDetail = () => {
   const { id } = useParams()
@@ -259,8 +258,22 @@ const ProductDetail = () => {
 
               {/* Stock Status */}
               <div className="mb-6">
-                <div className="text-gray-700 mb-1 text-sm">Stock Status</div>  
-                <StockIndicator productId={product.id} />
+                <div className="text-gray-700 mb-1 text-sm">Stock Status</div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                  />
+                  <span className={`font-medium ${product.stock > 10 ? 'text-green-600' :
+                      product.stock > 0 ? 'text-orange-600' :
+                        'text-red-600'
+                    }`}>
+                    {product.stock > 0 ? (
+                      <><span className="font-bold">{product.stock}</span> in stock</>
+                    ) : (
+                      'Out of stock'
+                    )}
+                  </span>
+                </div>
               </div>
 
               {/* Quantity Selector */}
@@ -349,19 +362,19 @@ const ProductDetail = () => {
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
                 You might be interested in
               </h2>
-              <Link 
+              <Link
                 to={`/products?category=${product.categoryId}`}
                 className="text-[#2874f0] text-sm font-medium hover:underline"
               >
                 View All
               </Link>
             </div>
-            
+
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
               {relatedProducts.map((relatedProduct) => {
                 const relatedOriginalPrice = Math.round(Number(relatedProduct.price) * 1.2)
                 const relatedDiscount = Math.round(((relatedOriginalPrice - relatedProduct.price) / relatedOriginalPrice) * 100)
-                
+
                 return (
                   <Link
                     key={relatedProduct.id}

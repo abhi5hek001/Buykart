@@ -6,6 +6,7 @@ import BannerCarousel from "../components/carousel/BannerCarousel"
 import CategoryNav from "../components/carousel/CategoryNav"
 import PageTransition from "../components/common/PageTransition"
 import { formatPrice } from "../utils/formatters"
+import SkeletonCard from "../components/common/SkeletonCard"
 
 // Product Card Component - Clean Flipkart Style
 const ProductCard = ({ product }) => {
@@ -76,17 +77,20 @@ const SectionHeader = ({ title, viewAllLink }) => (
 )
 
 // Product Row Section (6 products in a row)
-const ProductRowSection = ({ title, products, viewAllLink, bgColor = "bg-white" }) => {
-  if (!products || products.length === 0) return null
+const ProductRowSection = ({ title, products, viewAllLink, bgColor = "bg-white", isLoading = false }) => {
+  if (!isLoading && (!products || products.length === 0)) return null
 
   return (
     <section className={`${bgColor} rounded-sm shadow-sm overflow-hidden`}>
       <SectionHeader title={title} viewAllLink={viewAllLink} />
       <div className="p-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {products.slice(0, 6).map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {isLoading
+            ? Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)
+            : products.slice(0, 6).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          }
         </div>
       </div>
     </section>
@@ -94,16 +98,19 @@ const ProductRowSection = ({ title, products, viewAllLink, bgColor = "bg-white" 
 }
 
 // Two Column Section (Top Offers / Best of Electronics style)
-const TwoColumnSection = ({ leftTitle, rightTitle, leftProducts, rightProducts, leftLink, rightLink }) => {
+const TwoColumnSection = ({ leftTitle, rightTitle, leftProducts, rightProducts, leftLink, rightLink, isLoading = false }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Left Column */}
       <section className="bg-white rounded-sm shadow-sm overflow-hidden">
         <SectionHeader title={leftTitle} viewAllLink={leftLink} />
         <div className="p-4 grid grid-cols-2 gap-2">
-          {leftProducts?.slice(0, 4).map((product) => (
-            <SmallProductCard key={product.id} product={product} />
-          ))}
+          {isLoading
+            ? Array(4).fill(0).map((_, i) => <SkeletonCard key={i} />)
+            : leftProducts?.slice(0, 4).map((product) => (
+              <SmallProductCard key={product.id} product={product} />
+            ))
+          }
         </div>
       </section>
 
@@ -111,9 +118,12 @@ const TwoColumnSection = ({ leftTitle, rightTitle, leftProducts, rightProducts, 
       <section className="bg-white rounded-sm shadow-sm overflow-hidden">
         <SectionHeader title={rightTitle} viewAllLink={rightLink} />
         <div className="p-4 grid grid-cols-2 gap-2">
-          {rightProducts?.slice(0, 4).map((product) => (
-            <SmallProductCard key={product.id} product={product} />
-          ))}
+          {isLoading
+            ? Array(4).fill(0).map((_, i) => <SkeletonCard key={i} />)
+            : rightProducts?.slice(0, 4).map((product) => (
+              <SmallProductCard key={product.id} product={product} />
+            ))
+          }
         </div>
       </section>
     </div>
@@ -121,11 +131,11 @@ const TwoColumnSection = ({ leftTitle, rightTitle, leftProducts, rightProducts, 
 }
 
 // Promotional Banner Component
-const PromoBanner = ({ 
-  title, 
-  subtitle, 
-  buttonText, 
-  buttonLink, 
+const PromoBanner = ({
+  title,
+  subtitle,
+  buttonText,
+  buttonLink,
   bgColor = "bg-gradient-to-r from-orange-500 to-red-500",
   image
 }) => (
@@ -149,18 +159,18 @@ const PromoBanner = ({
 )
 
 const Home = () => {
-  // Fetch products by category
-  const { data: allProducts } = useGetProductsQuery({})
-  const { data: watchProducts } = useGetProductsQuery({ category: "30010" }) // Mens Watches
-  const { data: electronicsProducts } = useGetProductsQuery({ category: "30007" }) // Laptops
-  const { data: smartphoneProducts } = useGetProductsQuery({ category: "30014" }) // Smartphones
-  const { data: fashionProducts } = useGetProductsQuery({ category: "30008" }) // Mens Shirts
-  const { data: womenFashionProducts } = useGetProductsQuery({ category: "30021" }) // Womens Dresses
-  const { data: kitchenProducts } = useGetProductsQuery({ category: "30006" }) // Kitchen
-  const { data: beautyProducts } = useGetProductsQuery({ category: "30001" }) // Beauty
-  const { data: fragranceProducts } = useGetProductsQuery({ category: "30002" }) // Fragrances
-  const { data: groceryProducts } = useGetProductsQuery({ category: "30004" }) // Groceries
-  const { data: shoesProducts } = useGetProductsQuery({ category: "30009" }) // Mens Shoes
+  // Fetch products by category - Using correct production database category IDs
+  const { data: allProducts, isLoading: allLoading } = useGetProductsQuery({})
+  const { data: watchProducts, isLoading: watchLoading } = useGetProductsQuery({ category: "60058" }) // Mens Watches
+  const { data: electronicsProducts, isLoading: electronicsLoading } = useGetProductsQuery({ category: "60055" }) // Laptops
+  const { data: smartphoneProducts, isLoading: smartphoneLoading } = useGetProductsQuery({ category: "60062" }) // Smartphones
+  const { data: fashionProducts, isLoading: fashionLoading } = useGetProductsQuery({ category: "60056" }) // Mens Shirts
+  const { data: womenFashionProducts, isLoading: womenFashionLoading } = useGetProductsQuery({ category: "60069" }) // Womens Dresses
+  const { data: kitchenProducts, isLoading: kitchenLoading } = useGetProductsQuery({ category: "60054" }) // Kitchen Accessories
+  const { data: beautyProducts, isLoading: beautyLoading } = useGetProductsQuery({ category: "60049" }) // Beauty
+  const { data: fragranceProducts, isLoading: fragranceLoading } = useGetProductsQuery({ category: "60050" }) // Fragrances
+  const { data: groceryProducts, isLoading: groceryLoading } = useGetProductsQuery({ category: "60052" }) // Groceries
+  const { data: shoesProducts, isLoading: shoesLoading } = useGetProductsQuery({ category: "60057" }) // Mens Shoes
 
   // Combine and filter products for different sections
   const watches = watchProducts?.data || []
@@ -171,12 +181,17 @@ const Home = () => {
   const beauty = [...(beautyProducts?.data || []), ...(fragranceProducts?.data || [])]
   const groceries = groceryProducts?.data || []
   const shoes = shoesProducts?.data || []
-  
+
   // Gadgets = Electronics + Smartphones
   const gadgets = [...electronics, ...smartphones].slice(0, 6)
-  
+  const isGadgetsLoading = electronicsLoading || smartphoneLoading
+
   // Top Offers = Watches + Fashion shoes
   const topOffers = [...watches, ...shoes].slice(0, 4)
+  const isTopOffersLoading = watchLoading || shoesLoading
+
+  const isFashionSectionLoading = fashionLoading || womenFashionLoading
+  const isBeautySectionLoading = beautyLoading || fragranceLoading
 
   return (
     <PageTransition>
@@ -188,7 +203,7 @@ const Home = () => {
 
       {/* Main Content */}
       <div className="max-w-[1248px] mx-auto px-2 sm:px-4 py-4 space-y-4">
-        
+
         {/* Two Column: Top Offers & Best of Electronics */}
         <TwoColumnSection
           leftTitle="Top Offers"
@@ -196,14 +211,16 @@ const Home = () => {
           leftProducts={topOffers}
           rightProducts={electronics}
           leftLink="/products"
-          rightLink="/products?category=30007"
+          rightLink="/products?category=60055"
+          isLoading={isTopOffersLoading || electronicsLoading}
         />
 
         {/* Big Savings on Gadgets */}
         <ProductRowSection
           title="Big Savings on Gadgets"
           products={gadgets}
-          viewAllLink="/products?category=30014"
+          viewAllLink="/products?category=60062"
+          isLoading={isGadgetsLoading}
         />
 
         {/* Promo Banner - Flash Sale */}
@@ -219,21 +236,24 @@ const Home = () => {
         <ProductRowSection
           title="Fashion Trends"
           products={fashion.slice(0, 6)}
-          viewAllLink="/products?category=30008"
+          viewAllLink="/products?category=60056"
+          isLoading={isFashionSectionLoading}
         />
 
         {/* Kitchen Essentials */}
         <ProductRowSection
           title="Kitchen Essentials"
           products={kitchen}
-          viewAllLink="/products?category=30006"
+          viewAllLink="/products?category=60054"
+          isLoading={kitchenLoading}
         />
 
         {/* Best of Decorations - Beauty & Fragrances */}
         <ProductRowSection
           title="Best of Beauty & Fragrances"
           products={beauty.slice(0, 6)}
-          viewAllLink="/products?category=30001"
+          viewAllLink="/products?category=60049"
+          isLoading={isBeautySectionLoading}
         />
 
         {/* Promo Banner - Premium Membership */}
@@ -249,7 +269,8 @@ const Home = () => {
         <ProductRowSection
           title="Daily Essentials & Groceries"
           products={groceries}
-          viewAllLink="/products?category=30004"
+          viewAllLink="/products?category=60052"
+          isLoading={groceryLoading}
         />
 
         {/* Brand Partners Section */}

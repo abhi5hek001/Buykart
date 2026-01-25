@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { addToCart } from "../../features/cart/cartSlice"
 import { toggleWishlist, selectIsInWishlist } from "../../features/wishlist/wishlistSlice"
-import { StockBadge } from '../stock/StockIndicator';
 
 
 const formatPrice = (price) => {
@@ -85,8 +84,12 @@ const ProductCard = ({ product, index = 0 }) => {
             </svg>
           </button>
 
-          {/* Stock Badge */}
-          <StockBadge productId={id} />
+          {/* Stock Badge - Static display using product data */}
+          {stock !== undefined && stock > 0 && stock <= 10 && (
+            <span className="absolute top-2 left-2 px-2 py-1 text-xs font-semibold rounded bg-orange-100 text-orange-800">
+              Only {stock} left
+            </span>
+          )}
 
           {stock === 0 && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -129,10 +132,9 @@ const ProductCard = ({ product, index = 0 }) => {
             disabled={stock === 0}
             className={`
               w-full py-2.5 text-sm font-semibold rounded transition-all
-              ${
-                stock === 0
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-[#ff9f00] hover:bg-[#f39200] text-white active:scale-98"
+              ${stock === 0
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-[#ff9f00] hover:bg-[#f39200] text-white active:scale-98"
               }
             `}
           >

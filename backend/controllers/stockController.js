@@ -61,41 +61,6 @@ const stockController = {
         } catch (error) {
             next(error);
         }
-    },
-
-    /**
-     * GET /api/stock/stream
-     * SSE endpoint for real-time stock updates
-     */
-    async streamStock(req, res) {
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.setHeader('X-Accel-Buffering', 'no'); // Disable Nginx buffering
-
-        // Send initial stock data
-        try {
-            const result = await stockService.getAllStock();
-            res.write(`data: ${JSON.stringify(result.data)}\n\n`);
-        } catch (error) {
-            res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-        }
-
-        // Send updates every 5 seconds
-        const intervalId = setInterval(async () => {
-            try {
-                const result = await stockService.getAllStock();
-                res.write(`data: ${JSON.stringify(result.data)}\n\n`);
-            } catch (error) {
-                console.error('SSE error:', error);
-            }
-        }, 5000);
-
-        // Clean up on client disconnect
-        req.on('close', () => {
-            clearInterval(intervalId);
-            res.end();
-        });
     }
 };
 
