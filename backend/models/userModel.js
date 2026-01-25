@@ -1,4 +1,5 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 const userModel = {
     // Get all users
@@ -18,7 +19,7 @@ const userModel = {
     // Get user by ID
     async findById(id) {
         return await prisma.user.findUnique({
-            where: { id: parseInt(id) },
+            where: { id },
             select: {
                 id: true,
                 name: true,
@@ -41,6 +42,7 @@ const userModel = {
     async create(userData) {
         const user = await prisma.user.create({
             data: {
+                id: generateId('USR'),
                 name: userData.name,
                 email: userData.email,
                 password: userData.password,
@@ -62,7 +64,7 @@ const userModel = {
     // Update user
     async update(id, userData) {
         return await prisma.user.update({
-            where: { id: parseInt(id) },
+            where: { id },
             data: {
                 name: userData.name,
                 email: userData.email,
@@ -83,7 +85,7 @@ const userModel = {
     // Delete user
     async delete(id) {
         await prisma.user.delete({
-            where: { id: parseInt(id) }
+            where: { id }
         });
         return true;
     }

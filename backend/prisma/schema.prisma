@@ -12,7 +12,7 @@ datasource db {
 }
 
 model Category {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @db.VarChar(50)
   name        String    @db.VarChar(100)
   description String?   @db.Text
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -23,7 +23,7 @@ model Category {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @db.VarChar(50)
   name      String     @db.VarChar(100)
   email     String     @unique @db.VarChar(100)
   password  String     @db.VarChar(255)
@@ -40,13 +40,13 @@ model User {
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          String      @id @db.VarChar(50)
   name        String      @db.VarChar(200)
   description String?     @db.Text
   price       Decimal     @db.Decimal(10, 2)
   stock       Int         @default(0)
   imageUrl    String?     @map("image_url") @db.VarChar(500)
-  categoryId  Int?        @map("category_id")
+  categoryId  String?     @map("category_id") @db.VarChar(50)
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -59,8 +59,8 @@ model Product {
 }
 
 model Order {
-  id              Int         @id @default(autoincrement())
-  userId          Int         @map("user_id")
+  id              String      @id @db.VarChar(50)
+  userId          String      @map("user_id") @db.VarChar(50)
   totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
   status          OrderStatus @default(pending)
   shippingAddress String?     @map("shipping_address") @db.Text
@@ -74,9 +74,9 @@ model Order {
 }
 
 model OrderItem {
-  id              Int      @id @default(autoincrement())
-  orderId         Int      @map("order_id")
-  productId       Int      @map("product_id")
+  id              String   @id @db.VarChar(50)
+  orderId         String   @map("order_id") @db.VarChar(50)
+  productId       String   @map("product_id") @db.VarChar(50)
   quantity        Int
   priceAtPurchase Decimal  @map("price_at_purchase") @db.Decimal(10, 2)
   createdAt       DateTime @default(now()) @map("created_at")
@@ -87,9 +87,9 @@ model OrderItem {
 }
 
 model Cart {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  productId Int      @map("product_id")
+  id        String   @id @db.VarChar(50)
+  userId    String   @map("user_id") @db.VarChar(50)
+  productId String   @map("product_id") @db.VarChar(50)
   quantity  Int      @default(1)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -102,9 +102,9 @@ model Cart {
 }
 
 model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  productId Int      @map("product_id")
+  id        String   @id @db.VarChar(50)
+  userId    String   @map("user_id") @db.VarChar(50)
+  productId String   @map("product_id") @db.VarChar(50)
   createdAt DateTime @default(now()) @map("created_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)

@@ -1,10 +1,11 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 const orderModel = {
     // Get all orders for a user
     async findByUser(userId) {
         return await prisma.order.findMany({
-            where: { userId: parseInt(userId) },
+            where: { userId },
             include: {
                 items: {
                     include: {
@@ -33,7 +34,7 @@ const orderModel = {
     // Get order by ID with items
     async findById(id) {
         return await prisma.order.findUnique({
-            where: { id: parseInt(id) },
+            where: { id },
             include: {
                 user: {
                     select: { name: true, email: true }
@@ -53,6 +54,7 @@ const orderModel = {
     async create(orderData, tx) {
         return await tx.order.create({
             data: {
+                id: generateId('ORD'),
                 userId: orderData.user_id,
                 totalAmount: orderData.total_amount,
                 shippingAddress: orderData.shipping_address
@@ -64,6 +66,7 @@ const orderModel = {
     async createItem(itemData, tx) {
         await tx.orderItem.create({
             data: {
+                id: generateId('ORI'),
                 orderId: itemData.order_id,
                 productId: itemData.product_id,
                 quantity: itemData.quantity,
@@ -75,7 +78,7 @@ const orderModel = {
     // Update order status
     async updateStatus(id, status) {
         return await prisma.order.update({
-            where: { id: parseInt(id) },
+            where: { id },
             data: { status },
             include: {
                 user: {

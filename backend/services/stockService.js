@@ -17,7 +17,7 @@ const stockService = {
 
         // Fetch from database
         const product = await prisma.product.findUnique({
-            where: { id: parseInt(productId) },
+            where: { id: productId },
             select: { id: true, stock: true }
         });
 
@@ -44,7 +44,7 @@ const stockService = {
             if (cached !== null) {
                 results[id] = { stock: cached, fromCache: true };
             } else {
-                uncachedIds.push(parseInt(id));
+                uncachedIds.push(id);
             }
         }
 
@@ -103,7 +103,7 @@ const stockService = {
             const [product] = await tx.$queryRaw`
                 SELECT id, name, stock, price 
                 FROM products 
-                WHERE id = ${parseInt(item.product_id)}
+                WHERE id = ${item.product_id}
                 FOR UPDATE
             `;
 

@@ -1,10 +1,11 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 const cartModel = {
     // Get cart items for a user
     async findByUser(userId) {
         const items = await prisma.cart.findMany({
-            where: { userId: parseInt(userId) },
+            where: { userId },
             include: {
                 product: {
                     select: {
@@ -32,7 +33,7 @@ const cartModel = {
     // Get cart total
     async getCartTotal(userId) {
         const items = await prisma.cart.findMany({
-            where: { userId: parseInt(userId) },
+            where: { userId },
             include: {
                 product: {
                     select: { price: true }
@@ -54,8 +55,8 @@ const cartModel = {
         const existing = await prisma.cart.findUnique({
             where: {
                 userId_productId: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId)
+                    userId,
+                    productId
                 }
             }
         });
@@ -68,8 +69,9 @@ const cartModel = {
         } else {
             await prisma.cart.create({
                 data: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId),
+                    id: generateId('CRT'),
+                    userId,
+                    productId,
                     quantity
                 }
             });
@@ -85,8 +87,8 @@ const cartModel = {
         await prisma.cart.update({
             where: {
                 userId_productId: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId)
+                    userId,
+                    productId
                 }
             },
             data: { quantity }
@@ -99,8 +101,8 @@ const cartModel = {
         await prisma.cart.delete({
             where: {
                 userId_productId: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId)
+                    userId,
+                    productId
                 }
             }
         });
@@ -110,7 +112,7 @@ const cartModel = {
     // Clear cart for user
     async clearCart(userId) {
         await prisma.cart.deleteMany({
-            where: { userId: parseInt(userId) }
+            where: { userId }
         });
         return [];
     }

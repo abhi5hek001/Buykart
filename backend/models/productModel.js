@@ -1,4 +1,5 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 const productModel = {
     // Get all products with optional search and category filter
@@ -12,8 +13,14 @@ const productModel = {
             ];
         }
 
+        // Support filtering by Category ID or Name
         if (filters.category) {
-            where.categoryId = parseInt(filters.category);
+            where.category = {
+                OR: [
+                    { id: filters.category },
+                    { name: filters.category }
+                ]
+            };
         }
 
         return await prisma.product.findMany({
@@ -30,7 +37,7 @@ const productModel = {
     // Get product by ID
     async findById(id) {
         return await prisma.product.findUnique({
-            where: { id: parseInt(id) },
+            where: { id },
             include: {
                 category: {
                     select: { name: true }
@@ -43,12 +50,13 @@ const productModel = {
     async create(productData) {
         const product = await prisma.product.create({
             data: {
+                id: generateId('PRD'),
                 name: productData.name,
                 description: productData.description,
                 price: productData.price,
                 stock: productData.stock || 0,
                 imageUrl: productData.image_url,
-                categoryId: productData.category_id ? parseInt(productData.category_id) : null
+                categoryId: productData.category_id || null
             },
             include: {
                 category: {
@@ -62,14 +70,14 @@ const productModel = {
     // Update product
     async update(id, productData) {
         return await prisma.product.update({
-            where: { id: parseInt(id) },
+            where: { id },
             data: {
                 name: productData.name,
                 description: productData.description,
                 price: productData.price,
                 stock: productData.stock,
                 imageUrl: productData.image_url,
-                categoryId: productData.category_id ? parseInt(productData.category_id) : null
+                categoryId: productData.category_id || null
             },
             include: {
                 category: {
@@ -81,17 +89,21 @@ const productModel = {
 
     // Delete product
     async delete(id) {
-        await prisma.product.delete({
-            where: { id: parseInt(id) }
-        });
-        return true;
+        try {
+            await prisma.product.delete({
+                where: { id }
+            });
+            return true;
+        } catch (e) {
+            return false;
+        }
     },
 
     // Update stock (for transactions)
     async updateStock(id, quantity, tx = null) {
         const db = tx || prisma;
         await db.product.update({
-            where: { id: parseInt(id) },
+            where: { id },
             data: {
                 stock: { decrement: quantity }
             }
@@ -101,7 +113,7 @@ const productModel = {
     // Check stock availability
     async checkStock(id, quantity) {
         const product = await prisma.product.findUnique({
-            where: { id: parseInt(id) },
+            where: { id },
             select: { stock: true }
         });
         return product && product.stock >= quantity;

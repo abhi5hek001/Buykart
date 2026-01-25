@@ -1,10 +1,11 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 const wishlistModel = {
     // Get wishlist items for a user
     async findByUser(userId) {
         const items = await prisma.wishlist.findMany({
-            where: { userId: parseInt(userId) },
+            where: { userId },
             include: {
                 product: {
                     include: {
@@ -33,8 +34,8 @@ const wishlistModel = {
         const item = await prisma.wishlist.findUnique({
             where: {
                 userId_productId: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId)
+                    userId,
+                    productId
                 }
             }
         });
@@ -45,8 +46,9 @@ const wishlistModel = {
     async addItem(userId, productId) {
         await prisma.wishlist.create({
             data: {
-                userId: parseInt(userId),
-                productId: parseInt(productId)
+                id: generateId('WST'),
+                userId,
+                productId
             }
         });
         return this.findByUser(userId);
@@ -57,8 +59,8 @@ const wishlistModel = {
         await prisma.wishlist.delete({
             where: {
                 userId_productId: {
-                    userId: parseInt(userId),
-                    productId: parseInt(productId)
+                    userId,
+                    productId
                 }
             }
         });
@@ -68,7 +70,7 @@ const wishlistModel = {
     // Clear wishlist
     async clearWishlist(userId) {
         await prisma.wishlist.deleteMany({
-            where: { userId: parseInt(userId) }
+            where: { userId }
         });
         return [];
     }
