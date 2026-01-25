@@ -31,15 +31,20 @@ const Header = () => {
   const { data: usersData } = useGetUsersQuery()
   const users = usersData?.data || []
 
+  // Sync Cart and Wishlist when User changes (local or cross-tab)
+  useEffect(() => {
+    if (currentUser?.id) {
+      dispatch(switchUserCart(currentUser.id))
+      dispatch(switchUserWishlist(currentUser.id))
+    }
+  }, [currentUser?.id, dispatch])
+
   // Auto-select first user if none selected
   useEffect(() => {
     if (!currentUser && users.length > 0) {
-      const firstUser = users[0]
-      dispatch(setCurrentUser(firstUser))
-      dispatch(switchUserCart(firstUser.id))
-      dispatch(switchUserWishlist(firstUser.id))
+      handleUserSelect(users[0])
     }
-  }, [currentUser, users, dispatch])
+  }, [currentUser, users])
 
   // Debounced search query for autocomplete
   useEffect(() => {
@@ -78,8 +83,6 @@ const Header = () => {
 
   const handleUserSelect = (user) => {
     dispatch(setCurrentUser(user))
-    dispatch(switchUserCart(user.id))
-    dispatch(switchUserWishlist(user.id))
   }
 
   const handleSearch = (e) => {
@@ -101,7 +104,7 @@ const Header = () => {
       {/* Main Header */}
       <div className="bg-[#2874f0] text-white py-2.5">
         <div className="max-w-[1248px] mx-auto px-4 flex items-center justify-center sm:justify-between gap-4 md:gap-10">
-          
+
           {/* Logo Section */}
           <Link to="/" className="flex flex-col items-start leading-none shrink-0 group">
             <span className="text-xl sm:text-[22px] font-bold italic tracking-tight leading-none">
@@ -109,9 +112,9 @@ const Header = () => {
             </span>
             <span className="text-[10px] sm:text-[11px] text-white italic mt-0.5 group-hover:underline flex items-center">
               Explore <span className="text-[#ffe500] font-bold mx-0.5">Plus</span>
-              <img 
-                src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/plus_aef861.png" 
-                alt="Plus" 
+              <img
+                src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/plus_aef861.png"
+                alt="Plus"
                 className="w-2.5 h-2.5"
               />
             </span>
@@ -197,10 +200,10 @@ const Header = () => {
 
           {/* Nav Actions */}
           <nav className="flex items-center gap-6 md:gap-9">
-            
+
             {/* Login / Profile */}
-            <div 
-              className="relative" 
+            <div
+              className="relative"
               ref={dropdownRef}
               onMouseEnter={() => setShowDropdown(true)}
               onMouseLeave={() => setShowDropdown(false)}
@@ -224,39 +227,41 @@ const Header = () => {
                   >
                     {/* Tooltip Arrow */}
                     <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-10 border-l-transparent border-r-10 border-r-transparent border-b-10 border-white shadow-sm" />
-                    
+
                     <div className="bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden">
                       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                         <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
-                         <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
+                        <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
+                        <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
                       </div>
-                      
+
                       {/* User Selection Section */}
                       <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
                         <p className="text-xs text-gray-500 font-medium uppercase">Switch User</p>
                       </div>
                       <div className="max-h-40 overflow-y-auto">
-                        {users.map((user) => (
-                          <button
-                            key={user.id}
-                            onClick={() => handleUserSelect(user)}
-                            className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
-                          >
-                            <div className="w-7 h-7 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                              {user.name?.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
-                            </div>
-                            {currentUser?.id === user.id && (
-                              <svg className="w-4 h-4 text-[#2874f0]" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </button>
-                        ))}
+                        {users
+                          .filter(user => !user.name?.toLowerCase().includes('admin'))
+                          .map((user) => (
+                            <button
+                              key={user.id}
+                              onClick={() => handleUserSelect(user)}
+                              className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
+                            >
+                              <div className="w-7 h-7 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                {user.name?.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
+                              </div>
+                              {currentUser?.id === user.id && (
+                                <svg className="w-4 h-4 text-[#2874f0]" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </button>
+                          ))}
                       </div>
-                      
+
                       {/* Menu Links */}
                       <div className="flex flex-col border-t border-gray-100">
                         {[
@@ -335,10 +340,10 @@ const Header = () => {
               {/* Header */}
               <div className="bg-[#2874f0] p-4 text-white flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#2874f0]">
-                     <UserIcon />
-                   </div>
-                   <span className="font-semibold">Hello, {currentUser?.name || 'Guest'}</span>
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#2874f0]">
+                    <UserIcon />
+                  </div>
+                  <span className="font-semibold">Hello, {currentUser?.name || 'Guest'}</span>
                 </div>
                 <button onClick={() => setShowMobileMenu(false)} className="text-white">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -368,12 +373,12 @@ const Header = () => {
                   </Link>
                 ))}
               </div>
-              
+
               {/* Extra Links */}
               <div className="mt-2 border-t border-gray-100 py-2">
-                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Choose Language</Link>
-                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Offer Zone</Link>
-                 <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Sell on BuyKart</Link>
+                <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Choose Language</Link>
+                <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Offer Zone</Link>
+                <Link to="#" className="block px-4 py-3 text-gray-600 hover:bg-gray-50">Sell on BuyKart</Link>
               </div>
 
             </motion.div>
@@ -383,29 +388,29 @@ const Header = () => {
 
       {/* Mobile Search Bar Section */}
       <div className="sm:hidden bg-[#2874f0] px-4 pb-2">
-         <div className="bg-white flex items-center rounded-sm h-9 px-3">
-            <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for Products, Brands and More" 
-              className="text-[13px] w-full focus:outline-none text-black" 
-            />
-         </div>
+        <div className="bg-white flex items-center rounded-sm h-9 px-3">
+          <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for Products, Brands and More"
+            className="text-[13px] w-full focus:outline-none text-black"
+          />
+        </div>
       </div>
     </header>
   )
 }
 
 /* Internal SVG Components for Menu Icons */
-const UserIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-const OrderIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 8l-8-4-8 4v8l8 4 8-4V8zm-8-2.12L18.12 9 12 12.12 5.88 9 12 5.88zM6 10.12l5 2.5v5.26l-5-2.5v-5.26zm12 7.76l-5 2.5v-5.26l5-2.5v5.26z"/></svg>
-const HeartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-const RewardIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-const GiftIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.65-.5-.65C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.41 12.25 12 8.66l3.59 3.59L17 10.83 14.92 8H20v6z"/></svg>
-const CartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+const UserIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+const OrderIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 8l-8-4-8 4v8l8 4 8-4V8zm-8-2.12L18.12 9 12 12.12 5.88 9 12 5.88zM6 10.12l5 2.5v5.26l-5-2.5v-5.26zm12 7.76l-5 2.5v-5.26l5-2.5v5.26z" /></svg>
+const HeartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+const RewardIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" /></svg>
+const GiftIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.65-.5-.65C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.41 12.25 12 8.66l3.59 3.59L17 10.83 14.92 8H20v6z" /></svg>
+const CartIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" /></svg>
 
 export default Header;
