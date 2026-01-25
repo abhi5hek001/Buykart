@@ -38,7 +38,7 @@ Buykart is a modern, full-stack e-commerce application built with a mono-repo ar
 ## 🏗️ Architecture & Deployment
 
 ### CI/CD Pipelines
-We use GitHub Actions for automated, atomic deployments.
+I used GitHub Actions for automated, atomic deployments.
 
 #### 1. Backend Pipeline (`backend-deploy.yml`)
 - **Trigger**: Push to `main` with changes in `/backend`
@@ -71,49 +71,50 @@ We use GitHub Actions for automated, atomic deployments.
 
 ## 📂 Database Schema
 
-We use **Prisma ORM** with MySQL. Below is the relational schema overview:
+I used **Prisma ORM** with MySQL. Below is the relational schema overview:
 
 ![ER Diagram](./ERD.png)
 
 ### 👤 User & Authentication
 | Model | PK / FK | Field | Type | Description |
 |-------|---------|-------|------|-------------|
-| **User** | 🔑 PK | `id` | Int | Unique User ID |
+| **User** | 🔑 PK | `id` | String | Unique User ID (USR-xxx) |
+| | | `name` | String | Full name of the user |
 | | | `email` | String | Unique email address |
 | | | `password` | String | Hashed password (Bcrypt) |
 
 ### 📦 Product Management
 | Model | PK / FK | Field | Type | Relation |
 |-------|---------|-------|------|----------|
-| **Category** | 🔑 PK | `id` | Int | |
+| **Category** | 🔑 PK | `id` | String | (CAT-xxx) |
 | | | `name` | String | Category name (e.g., Electronics) |
-| **Product** | 🔑 PK | `id` | Int | |
-| | 🔗 FK | `categoryId` | Int | → **Category**(`id`) |
+| **Product** | 🔑 PK | `id` | String | (PRD-xxx) |
+| | 🔗 FK | `categoryId` | String | → **Category**(`id`) |
 | | | `price` | Decimal | Product price |
 | | | `stock` | Int | Inventory count |
 
 ### 🛒 Shopping & Wishlist
 | Model | PK / FK | Field | Type | Relation |
 |-------|---------|-------|------|----------|
-| **Cart** | 🔑 PK | `id` | Int | |
-| | 🔗 FK | `userId` | Int | → **User**(`id`) |
-| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
+| **Cart** | 🔑 PK | `id` | String | (CRT-xxx) |
+| | 🔗 FK | `userId` | String | → **User**(`id`) |
+| | 🔗 FK | `productId` | String | → **Product**(`id`) |
 | | | `quantity` | Int | Item quantity |
-| **Wishlist** | 🔑 PK | `id` | Int | |
-| | 🔗 FK | `userId` | Int | → **User**(`id`) |
-| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
+| **Wishlist** | 🔑 PK | `id` | String | (WSH-xxx) |
+| | 🔗 FK | `userId` | String | → **User**(`id`) |
+| | 🔗 FK | `productId` | String | → **Product**(`id`) |
 
 ### 🧾 Orders & Transactions
 | Model | PK / FK | Field | Type | Relation |
 |-------|---------|-------|------|----------|
-| **Order** | 🔑 PK | `id` | Int | |
-| | 🔗 FK | `userId` | Int | → **User**(`id`) |
+| **Order** | 🔑 PK | `id` | String | (ORD-xxx) |
+| | 🔗 FK | `userId` | String | → **User**(`id`) |
 | | | `status` | Enum | Pending, Confirmed, Shipped, Delivered |
-| | | `total` | Decimal | Total order amount |
-| **OrderItem** | 🔑 PK | `id` | Int | |
-| | 🔗 FK | `orderId` | Int | → **Order**(`id`) |
-| | 🔗 FK | `productId` | Int | → **Product**(`id`) |
-| | | `price` | Decimal | Price at time of purchase |
+| | | `totalAmount` | Decimal | Total order amount |
+| **OrderItem** | 🔑 PK | `id` | String | (ORI-xxx) |
+| | 🔗 FK | `orderId` | String | → **Order**(`id`) |
+| | 🔗 FK | `productId` | String | → **Product**(`id`) |
+| | | `priceAtPurchase` | Decimal | Price at time of purchase |
 
 ---
 
@@ -185,5 +186,4 @@ VITE_API_BASE_URL=http://localhost:3000/api
 - **Mono-repo**: Kept both frontend and backend in one repo for easier code sharing and version tracking.
 - **TiDB Cloud**: Selected for MySQL compatibility and serverless scalability.
 - **Redis**: Used for high-speed caching of product categories and session data.
-- **Shadcn UI**: Chosen for accessible, copy-paste components that are easily customizable.
 - **Docker Network**: Backend and Redis run on a custom `buykart-network` bridge to communicate securely on EC2.
