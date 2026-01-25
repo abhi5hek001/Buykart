@@ -94,7 +94,7 @@ const ProductDetail = () => {
 
   return (
     <PageTransition>
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6 pb-20 lg:pb-6">
         <div className="bg-white rounded-sm shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 p-4 sm:p-6">
             {/* Image Section */}
@@ -421,6 +421,24 @@ const ProductDetail = () => {
             </div>
           </motion.div>
         )}
+      </div>
+
+      {/* Sticky Mobile Action Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex gap-2 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <button
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+          className="flex-1 bg-white text-gray-800 border border-gray-300 font-semibold py-3 rounded-sm text-sm active:bg-gray-50 flex items-center justify-center gap-2"
+        >
+          {addedToCart ? "ADDED!" : "ADD TO CART"}
+        </button>
+        <button
+          onClick={handleBuyNow}
+          disabled={product.stock === 0}
+          className="flex-1 bg-[#fb641b] text-white font-semibold py-3 rounded-sm text-sm active:bg-[#f85606]"
+        >
+          BUY NOW
+        </button>
       </div>
     </PageTransition>
   )

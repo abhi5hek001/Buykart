@@ -51,7 +51,7 @@ const Cart = () => {
 
   return (
     <PageTransition>
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6 pb-24 lg:pb-6">
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
           {/* Cart Items */}
           <div className="flex-1">
@@ -142,11 +142,7 @@ const Cart = () => {
                 ))}
               </AnimatePresence>
 
-              <div className="p-4 flex justify-end lg:hidden">
-                <Button fullWidth size="lg" onClick={() => navigate("/checkout")}>
-                  PLACE ORDER
-                </Button>
-              </div>
+
             </div>
           </div>
 
@@ -213,6 +209,19 @@ const Cart = () => {
               </div>
             </motion.div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky Mobile Checkout Bar */}
+      <div className="lg:hidden fixed bottom-14 left-0 right-0 bg-white border-t border-gray-200 p-3 px-4 flex items-center justify-between z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] mb-[-1px]">
+        <div className="flex flex-col">
+          <span className="text-xs font-semibold text-gray-900">{formatPrice(total)}</span>
+          <button className="text-[#2874f0] text-[10px] font-medium text-left">View Details</button>
+        </div>
+        <div className="w-1/2">
+          <Button fullWidth size="lg" onClick={() => navigate("/checkout")}>
+            PLACE ORDER
+          </Button>
         </div>
       </div>
     </PageTransition>
