@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const wishlistController = require('../controllers/wishlistController');
 
-router.get('/:userId', wishlistController.getWishlist);
-router.post('/:userId/add', wishlistController.addItem);
-router.delete('/:userId/remove/:productId', wishlistController.removeItem);
-router.post('/:userId/move-to-cart/:productId', wishlistController.moveToCart);
-router.delete('/:userId/clear', wishlistController.clearWishlist);
+const { authMiddleware } = require('../middlewares/auth');
+
+router.get('/', authMiddleware, wishlistController.getWishlist);
+router.post('/add', authMiddleware, wishlistController.addItem);
+router.delete('/remove/:productId', authMiddleware, wishlistController.removeItem);
+router.post('/move-to-cart/:productId', authMiddleware, wishlistController.moveToCart);
+router.delete('/clear', authMiddleware, wishlistController.clearWishlist);
 
 module.exports = router;

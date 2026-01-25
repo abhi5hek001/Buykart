@@ -14,7 +14,7 @@ const orderController = {
     // GET /api/orders/user/:userId
     async getByUser(req, res, next) {
         try {
-            const orders = await orderService.getOrdersByUser(req.params.userId);
+            const orders = await orderService.getOrdersByUser(req.user.id);
             res.json({ success: true, data: orders });
         } catch (error) {
             next(error);
@@ -34,7 +34,11 @@ const orderController = {
     // POST /api/orders
     async create(req, res, next) {
         try {
-            const order = await orderService.createOrder(req.body);
+            const orderData = {
+                ...req.body,
+                user_id: req.user.id
+            };
+            const order = await orderService.createOrder(orderData);
             res.status(201).json({ success: true, data: order });
         } catch (error) {
             next(error);
