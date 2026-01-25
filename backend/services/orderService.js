@@ -2,6 +2,7 @@ const prisma = require('../config/db');
 const orderModel = require('../models/orderModel');
 const productModel = require('../models/productModel');
 const cartModel = require('../models/cartModel');
+const { generateId } = require('../utils/idGenerator');
 
 const orderService = {
     async getAllOrders() {
@@ -41,7 +42,7 @@ const orderService = {
                 const [product] = await tx.$queryRaw`
                     SELECT id, name, price, stock 
                     FROM products 
-                    WHERE id = ${parseInt(item.product_id)}
+                    WHERE id = ${item.product_id}
                     FOR UPDATE
                 `;
 
@@ -71,7 +72,8 @@ const orderService = {
             // Step 2: Create order (ACID - Atomicity)
             const order = await tx.order.create({
                 data: {
-                    userId: parseInt(user_id),
+                    id: generateId('ORD'),
+                    userId: user_id,
                     totalAmount: totalAmount,
                     shippingAddress: shipping_address
                 }
@@ -82,8 +84,9 @@ const orderService = {
                 // Create order item
                 await tx.orderItem.create({
                     data: {
+                        id: generateId('ORI'),
                         orderId: order.id,
-                        productId: parseInt(item.product_id),
+                        productId: item.product_id,
                         quantity: item.quantity,
                         priceAtPurchase: item.price_at_purchase
                     }
