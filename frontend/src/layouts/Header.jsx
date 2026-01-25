@@ -6,9 +6,10 @@ import { useSelector, useDispatch } from "react-redux"
 import { motion, AnimatePresence } from "framer-motion"
 import { selectCartTotalQuantity, switchUserCart } from "../features/cart/cartSlice"
 import { selectWishlistCount, switchUserWishlist } from "../features/wishlist/wishlistSlice"
-import { selectCurrentUser, setCurrentUser } from "../features/user/userSlice"
-import { useGetCategoriesQuery, useGetProductsQuery, useGetUsersQuery } from "../api/apiSlice"
+import { selectCurrentUser, logout, selectIsAuthenticated } from "../features/user/userSlice"
+import { useGetCategoriesQuery, useGetProductsQuery } from "../api/apiSlice"
 import { formatPrice } from "../utils/formatters"
+import AuthModal from "../components/auth/AuthModal"
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("")
@@ -21,30 +22,20 @@ const Header = () => {
   const dispatch = useDispatch()
   const cartCount = useSelector(selectCartTotalQuantity)
   const currentUser = useSelector(selectCurrentUser)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
 
   const { data: categoriesData } = useGetCategoriesQuery()
   const categories = categoriesData?.data || []
 
-  // Fetch users for dropdown
-  const { data: usersData } = useGetUsersQuery()
-  const users = usersData?.data || []
-
   // Sync Cart and Wishlist when User changes (local or cross-tab)
   useEffect(() => {
-    if (currentUser?.id) {
-      dispatch(switchUserCart(currentUser.id))
-      dispatch(switchUserWishlist(currentUser.id))
-    }
+    const userId = currentUser?.id || 'guest'
+    dispatch(switchUserCart(userId))
+    dispatch(switchUserWishlist(userId))
   }, [currentUser?.id, dispatch])
-
-  // Auto-select first user if none selected
-  useEffect(() => {
-    if (!currentUser && users.length > 0) {
-      handleUserSelect(users[0])
-    }
-  }, [currentUser, users])
 
   // Debounced search query for autocomplete
   useEffect(() => {
@@ -81,8 +72,9 @@ const Header = () => {
     setSearchQuery("")
   }, [location])
 
-  const handleUserSelect = (user) => {
-    dispatch(setCurrentUser(user))
+  const handleLogout = () => {
+    dispatch(logout())
+    navigate('/')
   }
 
   const handleSearch = (e) => {
@@ -209,12 +201,19 @@ const Header = () => {
               onMouseLeave={() => setShowDropdown(false)}
             >
               <button
-                className="bg-white text-[#2874f0] px-4 py-1 font-semibold text-[15px] rounded-sm hidden sm:flex items-center gap-2 hover:bg-white/95 transition-all"
+                onClick={() => !isAuthenticated && setShowAuthModal(true)}
+                className="bg-white text-[#2874f0] px-4 py-1 font-semibold text-[15px] rounded-sm hidden sm:flex items-center gap-2 hover:bg-white/95 transition-all outline-none"
               >
-                {currentUser?.name || 'Select User'}
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                {isAuthenticated ? (
+                  <>
+                    {currentUser?.name || 'My Account'}
+                    <svg className={`w-3 h-3 transition-transform ${showDropdown ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </>
+                ) : (
+                  'Login'
+                )}
               </button>
 
               <AnimatePresence>
@@ -229,57 +228,50 @@ const Header = () => {
                     <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-10 border-l-transparent border-r-10 border-r-transparent border-b-10 border-white shadow-sm" />
 
                     <div className="bg-white rounded-sm shadow-2xl border border-gray-100 overflow-hidden">
-                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                        <span className="text-black text-sm font-medium">Hello, {currentUser?.name || 'Guest'}</span>
-                        <Link to="/dashboard?tab=account" className="text-[#2874f0] text-sm font-semibold hover:underline">My Account</Link>
-                      </div>
-
-                      {/* User Selection Section */}
-                      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-                        <p className="text-xs text-gray-500 font-medium uppercase">Switch User</p>
-                      </div>
-                      <div className="max-h-40 overflow-y-auto">
-                        {users
-                          .filter(user => !user.name?.toLowerCase().includes('admin'))
-                          .map((user) => (
-                            <button
-                              key={user.id}
-                              onClick={() => handleUserSelect(user)}
-                              className={`w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${currentUser?.id === user.id ? 'bg-blue-50' : ''}`}
-                            >
-                              <div className="w-7 h-7 bg-[#2874f0] rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                                {user.name?.charAt(0).toUpperCase()}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
-                              </div>
-                              {currentUser?.id === user.id && (
-                                <svg className="w-4 h-4 text-[#2874f0]" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </button>
-                          ))}
+                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                        <div className="flex flex-col">
+                          <span className="text-black text-sm font-semibold">Hello, {currentUser?.name || 'Friend'}</span>
+                          {isAuthenticated && <span className="text-[10px] text-gray-500">{currentUser?.email}</span>}
+                        </div>
+                        {isAuthenticated && (
+                          <Link to="/dashboard?tab=account" className="text-[#2874f0] text-xs font-semibold hover:underline">My Profile</Link>
+                        )}
                       </div>
 
                       {/* Menu Links */}
-                      <div className="flex flex-col border-t border-gray-100">
+                      <div className="flex flex-col">
                         {[
-                          { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon /> },
-                          { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon /> },
-                          { label: "Wishlist", link: "/dashboard?tab=wishlist", icon: <HeartIcon /> },
-                          { label: "Rewards", link: "#", icon: <RewardIcon /> },
-                          { label: "Gift Cards", link: "#", icon: <GiftIcon /> },
-                        ].map((item) => (
-                          <Link
-                            key={item.label}
-                            to={item.link}
-                            className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                          { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon />, protected: true },
+                          { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon />, protected: true },
+                          { label: "Wishlist", link: "/dashboard?tab=wishlist", icon: <HeartIcon />, protected: true },
+                          { label: "Rewards", link: "#", icon: <RewardIcon />, protected: false },
+                          { label: "Gift Cards", link: "#", icon: <GiftIcon />, protected: false },
+                        ]
+                          .filter(item => !item.protected || isAuthenticated)
+                          .map((item) => (
+                            <Link
+                              key={item.label}
+                              to={item.link}
+                              className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-800 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                            >
+                              <span className="text-[#2874f0]">{item.icon}</span>
+                              {item.label}
+                            </Link>
+                          ))}
+
+                        {isAuthenticated && (
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-gray-800 hover:bg-gray-50 transition-colors text-left border-t border-gray-100"
                           >
-                            <span className="text-[#2874f0]">{item.icon}</span>
-                            {item.label}
-                          </Link>
-                        ))}
+                            <span className="text-red-500">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              </svg>
+                            </span>
+                            Logout
+                          </button>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -316,6 +308,9 @@ const Header = () => {
           </nav>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onOpenChange={setShowAuthModal} />
 
       {/* Mobile Menu Drawer */}
       <AnimatePresence>
@@ -355,23 +350,53 @@ const Header = () => {
               {/* Menu Links */}
               <div className="py-2">
                 {[
-                  { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon /> },
-                  { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon /> },
-                  { label: "Wishlist", link: "/dashboard?tab=wishlist", icon: <HeartIcon /> },
-                  { label: "Cart", link: "/cart", icon: <CartIcon /> },
-                  { label: "Rewards", link: "#", icon: <RewardIcon /> },
-                  { label: "Gift Cards", link: "#", icon: <GiftIcon /> },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.link}
-                    onClick={() => setShowMobileMenu(false)}
-                    className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                  { label: "My Profile", link: "/dashboard?tab=account", icon: <UserIcon />, protected: true },
+                  { label: "Orders", link: "/dashboard?tab=orders", icon: <OrderIcon />, protected: true },
+                  { label: "Wishlist", link: "/dashboard?tab=wishlist", icon: <HeartIcon />, protected: true },
+                  { label: "Cart", link: "/cart", icon: <CartIcon />, protected: false },
+                  { label: "Rewards", link: "#", icon: <RewardIcon />, protected: false },
+                  { label: "Gift Cards", link: "#", icon: <GiftIcon />, protected: false },
+                ]
+                  .filter(item => !item.protected || isAuthenticated)
+                  .map((item) => (
+                    <Link
+                      key={item.label}
+                      to={item.link}
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                    >
+                      <span className="text-[#2874f0] w-5 h-5">{item.icon}</span>
+                      <span className="font-medium text-[15px]">{item.label}</span>
+                    </Link>
+                  ))}
+
+                {!isAuthenticated ? (
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      setShowAuthModal(true);
+                    }}
+                    className="w-full flex items-center gap-4 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left"
                   >
-                    <span className="text-[#2874f0] w-5 h-5">{item.icon}</span>
-                    <span className="font-medium text-[15px]">{item.label}</span>
-                  </Link>
-                ))}
+                    <span className="text-[#2874f0] w-5 h-5"><UserIcon /></span>
+                    <span className="font-medium text-[15px]">Login / Signup</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-4 px-4 py-3 text-red-600 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left"
+                  >
+                    <span className="w-5 h-5">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    </span>
+                    <span className="font-medium text-[15px]">Logout</span>
+                  </button>
+                )}
               </div>
 
               {/* Extra Links */}

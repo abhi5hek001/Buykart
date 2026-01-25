@@ -28,11 +28,11 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const wishlistItems = useSelector(selectWishlistItems);
 
-  // Use the selected user from Redux instead of first user from API
+  const isAuthenticated = useSelector(state => !!state.user.token);
   const user = useSelector(selectCurrentUser);
 
-  const { data: ordersData, isLoading: ordersLoading } = useGetOrdersByUserQuery(user?.id, {
-    skip: !user?.id,
+  const { data: ordersData, isLoading: ordersLoading } = useGetOrdersByUserQuery(undefined, {
+    skip: !isAuthenticated,
   });
   const orders = ordersData?.data || [];
 
@@ -88,13 +88,13 @@ const Dashboard = () => {
     }
   };
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="bg-white rounded-sm shadow-sm p-8 text-center">
           <div className="text-6xl mb-4">👤</div>
-          <h2 className="text-xl font-medium text-gray-800 mb-2">No user selected</h2>
-          <p className="text-gray-500 mb-4">Please select a user from the header dropdown.</p>
+          <h2 className="text-xl font-medium text-gray-800 mb-2">Please Login</h2>
+          <p className="text-gray-500 mb-4">Please login to view your orders and profile.</p>
         </div>
       </div>
     );
@@ -363,56 +363,60 @@ const Dashboard = () => {
                         const statusInfo = getStatusInfo(order.status);
                         return (
                           <div key={`${order.id}-${idx}`} className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow">
-                            <div className="p-4 flex gap-4">
-                              {/* Product Image */}
-                              <Link to={`/products/${item.productId}`} className="shrink-0">
-                                <img
-                                  src={item.product?.imageUrl || 'https://via.placeholder.com/100x100'}
-                                  alt={item.product?.name}
-                                  className="w-20 h-20 object-contain"
-                                />
-                              </Link>
-
-                              {/* Product Info */}
-                              <div className="flex-1 min-w-0">
-                                <Link
-                                  to={`/products/${item.productId}`}
-                                  className="text-sm text-gray-800 hover:text-[#2874f0] line-clamp-1 font-medium"
-                                >
-                                  {item.product?.name || `Product #${item.productId}`}
+                            <div className="p-4 flex flex-col sm:flex-row gap-4">
+                              {/* Product Info Section (Image + Text) */}
+                              <div className="flex flex-1 gap-4 min-w-0">
+                                <Link to={`/products/${item.productId}`} className="shrink-0">
+                                  <img
+                                    src={item.product?.imageUrl || 'https://via.placeholder.com/100x100'}
+                                    alt={item.product?.name}
+                                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
+                                  />
                                 </Link>
-                                <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
-                                <p className="text-sm font-semibold text-gray-900 mt-1">
-                                  {formatPrice(item.priceAtPurchase)}
-                                </p>
-                              </div>
 
-                              {/* Status */}
-                              <div className="shrink-0 text-right min-w-[140px]">
-                                <div className="flex items-center gap-2 justify-end">
-                                  <span className={`w-2 h-2 rounded-full ${statusInfo.bg}`}></span>
-                                  <span className={`text-sm font-medium ${statusInfo.color}`}>
-                                    {statusInfo.text}
-                                  </span>
+                                <div className="flex-1 min-w-0">
+                                  <Link
+                                    to={`/products/${item.productId}`}
+                                    className="text-sm text-gray-800 hover:text-[#2874f0] line-clamp-1 sm:line-clamp-2 font-medium"
+                                  >
+                                    {item.product?.name || `Product #${item.productId}`}
+                                  </Link>
+                                  <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
+                                  <p className="text-sm font-semibold text-gray-900 mt-1">
+                                    {formatPrice(item.priceAtPurchase)}
+                                  </p>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric',
-                                  })}
-                                </p>
                               </div>
 
-                              {/* Actions */}
-                              <div className="shrink-0 flex flex-col gap-2 items-center justify-center">
-                                <Link to={`/order-confirmation/${order.id}`}>
-                                  <button className="p-2 text-gray-400 hover:text-[#2874f0] transition-colors" title="View Details">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                  </button>
-                                </Link>
+                              {/* Status & Actions Section */}
+                              <div className="flex sm:contents">
+                                {/* Status */}
+                                <div className="flex-1 sm:shrink-0 sm:text-right sm:min-w-[140px]">
+                                  <div className="flex items-center gap-2 sm:justify-end">
+                                    <span className={`w-2 h-2 rounded-full ${statusInfo.bg}`}></span>
+                                    <span className={`text-sm font-medium ${statusInfo.color}`}>
+                                      {statusInfo.text}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      year: 'numeric',
+                                    })}
+                                  </p>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="shrink-0 flex items-center justify-center ml-auto sm:ml-0">
+                                  <Link to={`/order-confirmation/${order.id}`}>
+                                    <button className="p-2 text-gray-400 hover:text-[#2874f0] transition-colors" title="View Details">
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                      </svg>
+                                    </button>
+                                  </Link>
+                                </div>
                               </div>
                             </div>
                           </div>
