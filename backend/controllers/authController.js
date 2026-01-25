@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const authConfig = require('../config/auth');
+const { generateId } = require('../utils/idGenerator');
 
 const prisma = new PrismaClient();
 
@@ -83,6 +84,7 @@ const authController = {
             // Create new user in database
             const newUser = await prisma.user.create({
                 data: {
+                    id: generateId('USR'),
                     name,
                     email,
                     password: hashedPassword,

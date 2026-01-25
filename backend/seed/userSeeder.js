@@ -1,4 +1,6 @@
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
+const bcrypt = require('bcryptjs');
 
 const users = [
     {
@@ -25,18 +27,30 @@ const users = [
 ];
 
 async function seedUsers() {
-    console.log('🌱 Seeding users...');
+    console.log('🌱 Seeding users (with hashed passwords)...');
 
-    for (const user of users) {
-        await prisma.user.upsert({
-            where: { email: user.email },
-            update: user,
-            create: user
+    for (const userData of users) {
+        // Upsert by email - Using findUnique + create because create is safer for custom IDs
+        const existing = await prisma.user.findUnique({
+            where: { email: userData.email }
         });
+
+        if (!existing) {
+            // Hash the password before seeding
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+            await prisma.user.create({
+                data: {
+                    id: generateId('USR'),
+                    ...userData,
+                    password: hashedPassword
+                }
+            });
+        }
     }
 
     const count = await prisma.user.count();
-    console.log(`✅ Seeded ${count} users`);
+    console.log(`✅ Seeded ${count} users with String IDs`);
     return count;
 }
 
