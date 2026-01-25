@@ -6,7 +6,8 @@
  */
 
 const prisma = require('../config/db');
-const { seedCategories, seedProducts } = require('./productSeeder');
+const { seedProducts } = require('./productSeeder');
+const { seedCategories } = require('./categorySeeder');
 const { seedUsers } = require('./userSeeder');
 const { seedCart } = require('./cartSeeder');
 const { seedWishlist } = require('./wishlistSeeder');
@@ -17,16 +18,28 @@ async function main() {
     console.log('━'.repeat(50));
 
     try {
-        // Clear existing data (in reverse order of dependencies)
+        // Clear existing data (using TRUNCATE for full reset)
         console.log('\n🧹 Clearing existing data...');
-        await prisma.orderItem.deleteMany();
-        await prisma.order.deleteMany();
-        await prisma.cart.deleteMany();
-        await prisma.wishlist.deleteMany();
-        await prisma.product.deleteMany();
-        await prisma.category.deleteMany();
-        await prisma.user.deleteMany();
-        console.log('✅ Cleared all existing data\n');
+        try {
+            // Disable FK checks to allow truncation in any order
+            await prisma.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0;');
+
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE order_items');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE orders');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE cart');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE wishlist');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE products');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE categories');
+            await prisma.$executeRawUnsafe('TRUNCATE TABLE users');
+
+            await prisma.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 1;');
+            console.log('✅ Cleared all data (TRUNCATE)\n');
+        } catch (err) {
+            console.error('Error clearing data with TRUNCATE:', err);
+            // Re-enable FK checks even if truncation fails
+            await prisma.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 1;');
+            throw err;
+        }
         console.log('━'.repeat(50));
 
         // Seed in order of dependencies

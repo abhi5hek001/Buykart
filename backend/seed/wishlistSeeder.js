@@ -4,6 +4,7 @@
  */
 
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 async function seedWishlist() {
     console.log('🌱 Seeding wishlists...');
@@ -39,6 +40,7 @@ async function seedWishlist() {
                 if (!existing) {
                     await prisma.wishlist.create({
                         data: {
+                            id: generateId('WST'),
                             userId: user.id,
                             productId: product.id,
                         },

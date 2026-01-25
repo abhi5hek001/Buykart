@@ -4,6 +4,7 @@
  */
 
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 async function seedCart() {
     console.log('🌱 Seeding carts...');
@@ -42,6 +43,7 @@ async function seedCart() {
                 if (!existing) {
                     await prisma.cart.create({
                         data: {
+                            id: generateId('CRT'),
                             userId: user.id,
                             productId: product.id,
                             quantity,

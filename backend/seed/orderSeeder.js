@@ -4,6 +4,7 @@
  */
 
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
 // Order statuses to cycle through
 const orderStatuses = ['pending', 'confirmed', 'shipped', 'delivered'];
@@ -58,6 +59,7 @@ async function seedOrders() {
                     orderTotal += priceAtPurchase * quantity;
 
                     orderItems.push({
+                        id: generateId('ORI'),
                         productId: product.id,
                         quantity,
                         priceAtPurchase,
@@ -67,6 +69,7 @@ async function seedOrders() {
                 // Create order with items
                 const order = await prisma.order.create({
                     data: {
+                        id: generateId('ORD'),
                         userId: user.id,
                         status: orderStatuses[Math.floor(Math.random() * orderStatuses.length)],
                         totalAmount: orderTotal,

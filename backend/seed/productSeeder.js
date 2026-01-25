@@ -1,112 +1,82 @@
-/**
- * Product and Category Seeder using DummyJSON API
- * Fetches real product data with images from dummyjson.com
- */
-
 const prisma = require('../config/db');
+const { generateId } = require('../utils/idGenerator');
 
-// Store category mapping for use by other seeders
-let categoryMap = {};
-
-async function seedCategories() {
-    console.log('🌱 Fetching categories from DummyJSON...');
-
-    try {
-        // Fetch all products to get categories
-        const response = await fetch('https://dummyjson.com/products?limit=0');
-        const data = await response.json();
-        const products = data.products;
-
-        // Extract unique categories
-        const uniqueCategories = [...new Set(products.map((p) => p.category))];
-
-        for (const categoryName of uniqueCategories) {
-            const formattedName = categoryName
-                .split('-')
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-
-            // Check if category already exists
-            let category = await prisma.category.findFirst({
-                where: { name: formattedName },
-            });
-
-            if (!category) {
-                category = await prisma.category.create({
-                    data: {
-                        name: formattedName,
-                        description: `${formattedName} products`,
-                    },
-                });
-            }
-
-            categoryMap[categoryName] = category.id;
-        }
-
-        const count = await prisma.category.count();
-        console.log(`✅ Seeded ${count} categories from DummyJSON`);
-        return categoryMap;
-    } catch (error) {
-        console.error('❌ Error seeding categories:', error);
-        throw error;
-    }
-}
+// Category Slug Map (Product Category -> Our Category Name)
+const categorySlugMap = {
+    'beauty': 'Beauty',
+    'fragrances': 'Fragrances',
+    'furniture': 'Furniture',
+    'groceries': 'Groceries',
+    'home-decoration': 'Home Decoration',
+    'kitchen-accessories': 'Kitchen Accessories',
+    'laptops': 'Laptops',
+    'mens-shirts': 'Mens Shirts',
+    'mens-shoes': 'Mens Shoes',
+    'mens-watches': 'Mens Watches',
+    'mobile-accessories': 'Mobile Accessories',
+    'motorcycle': 'Motorcycle',
+    'skin-care': 'Skin Care',
+    'smartphones': 'Smartphones',
+    'sports-accessories': 'Sports Accessories',
+    'sunglasses': 'Sunglasses',
+    'tablets': 'Tablets',
+    'tops': 'Tops',
+    'vehicle': 'Vehicle',
+    'womens-bags': 'Womens Bags',
+    'womens-dresses': 'Womens Dresses',
+    'womens-jewellery': 'Womens Jewellery',
+    'womens-shoes': 'Womens Shoes',
+    'womens-watches': 'Womens Watches'
+};
 
 async function seedProducts() {
     console.log('🌱 Fetching products from DummyJSON...');
 
     try {
-        // Fetch all products from DummyJSON (limit=0 means all)
+        // Fetch all categories first to get their IDs
+        const categories = await prisma.category.findMany();
+        // Create a map of "Category Name" -> "Category ID"
+        const categoryIdMap = {};
+        categories.forEach(c => {
+            categoryIdMap[c.name] = c.id;
+        });
+
+        // Fetch all products from DummyJSON
         const response = await fetch('https://dummyjson.com/products?limit=0');
         const data = await response.json();
         const products = data.products;
 
-        // If categoryMap is empty, rebuild it
-        if (Object.keys(categoryMap).length === 0) {
-            const categories = await prisma.category.findMany();
-            for (const cat of categories) {
-                // Convert formatted name back to slug format for mapping
-                const slug = cat.name.toLowerCase().replace(/ /g, '-');
-                categoryMap[slug] = cat.id;
-            }
-        }
-
         let created = 0;
-        let updated = 0;
 
         for (const product of products) {
-            const existing = await prisma.product.findFirst({
-                where: { name: product.title },
-            });
+            // Map DummyJSON category slug to our Category Name, then to ID
+            const categoryName = categorySlugMap[product.category];
+            const categoryId = categoryIdMap[categoryName];
+
+            if (!categoryId) {
+                console.warn(`⚠️ Skipping product "${product.title}" - Unknown/Unmapped category: ${product.category}`);
+                continue;
+            }
 
             const productData = {
+                id: generateId('PRD'), // Generate String ID
                 name: product.title,
                 description: product.description,
                 price: Math.round(product.price * 83), // Convert USD to INR
                 stock: product.stock,
                 imageUrl: product.thumbnail,
-                categoryId: categoryMap[product.category],
+                categoryId: categoryId,
             };
 
-            if (!existing) {
-                await prisma.product.create({ data: productData });
-                created++;
-            } else {
-                await prisma.product.update({
-                    where: { id: existing.id },
-                    data: {
-                        imageUrl: product.thumbnail,
-                        description: product.description,
-                        price: productData.price,
-                        stock: product.stock,
-                    },
-                });
-                updated++;
-            }
+            await prisma.product.create({
+                data: productData
+            });
+
+            created++;
         }
 
         const count = await prisma.product.count();
-        console.log(`✅ Seeded ${count} products (${created} new, ${updated} updated)`);
+        console.log(`✅ Seeded ${count} products with String IDs`);
         return count;
     } catch (error) {
         console.error('❌ Error seeding products:', error);
@@ -114,4 +84,4 @@ async function seedProducts() {
     }
 }
 
-module.exports = { seedCategories, seedProducts, categoryMap };
+module.exports = { seedProducts };
