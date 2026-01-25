@@ -28,7 +28,8 @@ const loadInitialState = () => {
     try {
         const savedUser = localStorage.getItem('buykart_current_user');
         const user = savedUser ? JSON.parse(savedUser) : null;
-        return loadWishlistFromStorage(user?.id);
+        // Ensure we only load data for string IDs (new format)
+        return loadWishlistFromStorage(typeof user?.id === 'string' ? user.id : null);
     } catch {
         return { items: [], userId: null };
     }
@@ -90,5 +91,20 @@ export const selectWishlistItems = (state) => state.wishlist.items;
 export const selectWishlistCount = (state) => state.wishlist.items.length;
 export const selectIsInWishlist = (id) => (state) =>
     state.wishlist.items.some((item) => item.id === id);
+
+// Listener to sync wishlist changes across tabs
+export const setupWishlistListeners = () => (dispatch, getState) => {
+    window.addEventListener('storage', (e) => {
+        const userId = getState().user.currentUser?.id || 'guest';
+        const storageKey = `buykart_wishlist_${userId}`;
+
+        if (e.key === storageKey) {
+            const newWishlist = e.newValue ? JSON.parse(e.newValue) : null;
+            if (newWishlist) {
+                dispatch(switchUserWishlist(userId));
+            }
+        }
+    });
+};
 
 export default wishlistSlice.reducer;

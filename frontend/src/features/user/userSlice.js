@@ -4,7 +4,17 @@ import { createSlice } from '@reduxjs/toolkit';
 const loadUserFromStorage = () => {
     try {
         const savedUser = localStorage.getItem('buykart_current_user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        if (savedUser) {
+            const user = JSON.parse(savedUser);
+            // Validation: Ensure ID is a string (part of the new production ID scheme)
+            // If it's a number (legacy), clear it to force a fresh selection
+            if (typeof user?.id !== 'string') {
+                localStorage.removeItem('buykart_current_user');
+                return null;
+            }
+            return user;
+        }
+        return null;
     } catch {
         return null;
     }
@@ -46,5 +56,15 @@ export const { setCurrentUser, clearCurrentUser } = userSlice.actions;
 
 // Selectors
 export const selectCurrentUser = (state) => state.user.currentUser;
+
+// Thunk to initialize listeners
+export const setupUserListeners = () => (dispatch) => {
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'buykart_current_user') {
+            const newUser = e.newValue ? JSON.parse(e.newValue) : null;
+            dispatch(setCurrentUser(newUser));
+        }
+    });
+};
 
 export default userSlice.reducer;

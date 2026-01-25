@@ -28,7 +28,8 @@ const loadInitialState = () => {
     try {
         const savedUser = localStorage.getItem('buykart_current_user');
         const user = savedUser ? JSON.parse(savedUser) : null;
-        return loadCartFromStorage(user?.id);
+        // Ensure we only load data for string IDs (new format)
+        return loadCartFromStorage(typeof user?.id === 'string' ? user.id : null);
     } catch {
         return { items: [], totalQuantity: 0, subtotal: 0, userId: null };
     }
@@ -119,5 +120,20 @@ export const { addToCart, removeFromCart, updateQuantity, clearCart, switchUserC
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotalQuantity = (state) => state.cart.totalQuantity;
 export const selectCartSubtotal = (state) => state.cart.subtotal;
+
+// Listener to sync cart changes across tabs
+export const setupCartListeners = () => (dispatch, getState) => {
+    window.addEventListener('storage', (e) => {
+        const userId = getState().user.currentUser?.id || 'guest';
+        const storageKey = `buykart_cart_${userId}`;
+
+        if (e.key === storageKey) {
+            const newCart = e.newValue ? JSON.parse(e.newValue) : null;
+            if (newCart) {
+                dispatch(switchUserCart(userId));
+            }
+        }
+    });
+};
 
 export default cartSlice.reducer;
