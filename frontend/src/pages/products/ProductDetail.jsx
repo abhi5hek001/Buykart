@@ -21,7 +21,7 @@ const ProductDetail = () => {
 
   const { data, isLoading, error } = useGetProductByIdQuery(id)
   const product = data?.data
-  const isInWishlist = useSelector(selectIsInWishlist(Number(id)))
+  const isInWishlist = useSelector(selectIsInWishlist(id))
 
   // Fetch related products from the same category
   const { data: relatedData } = useGetProductsQuery(
@@ -264,8 +264,8 @@ const ProductDetail = () => {
                     className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}
                   />
                   <span className={`font-medium ${product.stock > 10 ? 'text-green-600' :
-                      product.stock > 0 ? 'text-orange-600' :
-                        'text-red-600'
+                    product.stock > 0 ? 'text-orange-600' :
+                      'text-red-600'
                     }`}>
                     {product.stock > 0 ? (
                       <><span className="font-bold">{product.stock}</span> in stock</>

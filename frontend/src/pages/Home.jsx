@@ -161,16 +161,16 @@ const PromoBanner = ({
 const Home = () => {
   // Fetch products by category - Using correct production database category IDs
   const { data: allProducts, isLoading: allLoading } = useGetProductsQuery({})
-  const { data: watchProducts, isLoading: watchLoading } = useGetProductsQuery({ category: "60058" }) // Mens Watches
-  const { data: electronicsProducts, isLoading: electronicsLoading } = useGetProductsQuery({ category: "60055" }) // Laptops
-  const { data: smartphoneProducts, isLoading: smartphoneLoading } = useGetProductsQuery({ category: "60062" }) // Smartphones
-  const { data: fashionProducts, isLoading: fashionLoading } = useGetProductsQuery({ category: "60056" }) // Mens Shirts
-  const { data: womenFashionProducts, isLoading: womenFashionLoading } = useGetProductsQuery({ category: "60069" }) // Womens Dresses
-  const { data: kitchenProducts, isLoading: kitchenLoading } = useGetProductsQuery({ category: "60054" }) // Kitchen Accessories
-  const { data: beautyProducts, isLoading: beautyLoading } = useGetProductsQuery({ category: "60049" }) // Beauty
-  const { data: fragranceProducts, isLoading: fragranceLoading } = useGetProductsQuery({ category: "60050" }) // Fragrances
-  const { data: groceryProducts, isLoading: groceryLoading } = useGetProductsQuery({ category: "60052" }) // Groceries
-  const { data: shoesProducts, isLoading: shoesLoading } = useGetProductsQuery({ category: "60057" }) // Mens Shoes
+  const { data: watchProducts, isLoading: watchLoading } = useGetProductsQuery({ category: "Mens Watches" }) // Mens Watches
+  const { data: electronicsProducts, isLoading: electronicsLoading } = useGetProductsQuery({ category: "Laptops" }) // Laptops
+  const { data: smartphoneProducts, isLoading: smartphoneLoading } = useGetProductsQuery({ category: "Smartphones" }) // Smartphones
+  const { data: fashionProducts, isLoading: fashionLoading } = useGetProductsQuery({ category: "Mens Shirts" }) // Mens Shirts
+  const { data: womenFashionProducts, isLoading: womenFashionLoading } = useGetProductsQuery({ category: "Womens Dresses" }) // Womens Dresses
+  const { data: kitchenProducts, isLoading: kitchenLoading } = useGetProductsQuery({ category: "Kitchen Accessories" }) // Kitchen Accessories
+  const { data: beautyProducts, isLoading: beautyLoading } = useGetProductsQuery({ category: "Beauty" }) // Beauty
+  const { data: fragranceProducts, isLoading: fragranceLoading } = useGetProductsQuery({ category: "Fragrances" }) // Fragrances
+  const { data: groceryProducts, isLoading: groceryLoading } = useGetProductsQuery({ category: "Groceries" }) // Groceries
+  const { data: shoesProducts, isLoading: shoesLoading } = useGetProductsQuery({ category: "Mens Shoes" }) // Mens Shoes
 
   // Combine and filter products for different sections
   const watches = watchProducts?.data || []
@@ -211,7 +211,7 @@ const Home = () => {
           leftProducts={topOffers}
           rightProducts={electronics}
           leftLink="/products"
-          rightLink="/products?category=60055"
+          rightLink="/products?category=Laptops"
           isLoading={isTopOffersLoading || electronicsLoading}
         />
 
@@ -219,7 +219,7 @@ const Home = () => {
         <ProductRowSection
           title="Big Savings on Gadgets"
           products={gadgets}
-          viewAllLink="/products?category=60062"
+          viewAllLink="/products?category=Smartphones"
           isLoading={isGadgetsLoading}
         />
 
@@ -236,7 +236,7 @@ const Home = () => {
         <ProductRowSection
           title="Fashion Trends"
           products={fashion.slice(0, 6)}
-          viewAllLink="/products?category=60056"
+          viewAllLink="/products?category=Mens Shirts"
           isLoading={isFashionSectionLoading}
         />
 
@@ -244,7 +244,7 @@ const Home = () => {
         <ProductRowSection
           title="Kitchen Essentials"
           products={kitchen}
-          viewAllLink="/products?category=60054"
+          viewAllLink="/products?category=Kitchen Accessories"
           isLoading={kitchenLoading}
         />
 
@@ -252,7 +252,7 @@ const Home = () => {
         <ProductRowSection
           title="Best of Beauty & Fragrances"
           products={beauty.slice(0, 6)}
-          viewAllLink="/products?category=60049"
+          viewAllLink="/products?category=Beauty"
           isLoading={isBeautySectionLoading}
         />
 
@@ -269,7 +269,7 @@ const Home = () => {
         <ProductRowSection
           title="Daily Essentials & Groceries"
           products={groceries}
-          viewAllLink="/products?category=60052"
+          viewAllLink="/products?category=Groceries"
           isLoading={groceryLoading}
         />
 

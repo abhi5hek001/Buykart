@@ -8,40 +8,40 @@ const categories = [
     name: 'Minutes',
     image: 'category-minutes.webp',
     hasNew: true,
-    link: '/products?category=60052' // Mapped to Groceries
+    link: '/products?category=Groceries' // Mapped to Groceries
   },
   {
     id: 'mobiles',
     name: 'Mobiles & Tablets',
     image: 'category-mobiles.webp',
-    link: '/products?category=60062' // Mapped to Smartphones
+    link: '/products?category=Smartphones' // Mapped to Smartphones
   },
   {
     id: 'fashion',
     name: 'Fashion',
     image: 'category-fashion.webp',
     hasDropdown: true,
-    link: '/products?category=60056' // Mapped to Mens Shirts
+    link: '/products?category=Mens Shirts' // Mapped to Mens Shirts
   },
   {
     id: 'electronics',
     name: 'Electronics',
     image: 'category-electronics.webp',
     hasDropdown: true,
-    link: '/products?category=60055' // Mapped to Laptops
+    link: '/products?category=Laptops' // Mapped to Laptops
   },
   {
     id: 'jewelry',
     name: 'Jewelry',
     image: 'category-jewelry.webp',
-    link: '/products?category=60070' // Mapped to Womens Jewellery
+    link: '/products?category=Womens Jewellery' // Mapped to Womens Jewellery
   },
   {
     id: 'home',
     name: 'Home & Furniture',
     image: 'category-home.webp',
     hasDropdown: true,
-    link: '/products?category=60051' // Mapped to Furniture
+    link: '/products?category=Furniture' // Mapped to Furniture
   },
   {
     id: 'flights',
@@ -54,13 +54,13 @@ const categories = [
     name: 'Beauty, Food..',
     image: 'category-beauty.webp',
     hasDropdown: true,
-    link: '/products?category=60049' // Mapped to Beauty
+    link: '/products?category=Beauty' // Mapped to Beauty
   },
   {
     id: 'grocery',
     name: 'Grocery',
     image: 'category-grocery.webp',
-    link: '/products?category=60052' // Mapped to Groceries
+    link: '/products?category=Groceries' // Mapped to Groceries
   },
 ]
 

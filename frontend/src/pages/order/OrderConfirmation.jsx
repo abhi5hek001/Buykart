@@ -15,10 +15,10 @@ const OrderConfirmation = () => {
   const [showCelebration, setShowCelebration] = useState(true);
 
   const order = data?.data;
-  
+
   // Calculate supercoins earned (1 coin per 100 spent)
   const supercoinsEarned = order ? Math.floor(Number(order.totalAmount) / 100) : 0;
-  
+
   // Hide celebration after 4 seconds
   useEffect(() => {
     if (showCelebration && order) {
@@ -88,19 +88,19 @@ const OrderConfirmation = () => {
             {[...Array(30)].map((_, i) => (
               <motion.div
                 key={i}
-                initial={{ 
-                  x: 0, 
-                  y: 0, 
+                initial={{
+                  x: 0,
+                  y: 0,
                   scale: 0,
                   rotate: 0
                 }}
-                animate={{ 
+                animate={{
                   x: (Math.random() - 0.5) * 400,
                   y: (Math.random() - 0.5) * 400,
                   scale: [0, 1, 0.5],
                   rotate: Math.random() * 720 - 360
                 }}
-                transition={{ 
+                transition={{
                   duration: 2,
                   delay: Math.random() * 0.5,
                   ease: "easeOut"
@@ -111,7 +111,7 @@ const OrderConfirmation = () => {
                 }}
               />
             ))}
-            
+
             {/* Main celebration card */}
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
@@ -124,11 +124,11 @@ const OrderConfirmation = () => {
               <div className="bg-white rounded-xl p-8 text-center min-w-[320px]">
                 {/* Coin animation */}
                 <motion.div
-                  animate={{ 
+                  animate={{
                     rotateY: [0, 360],
                     scale: [1, 1.2, 1]
                   }}
-                  transition={{ 
+                  transition={{
                     rotateY: { duration: 2, repeat: Infinity, ease: "linear" },
                     scale: { duration: 1, repeat: Infinity }
                   }}
@@ -136,7 +136,7 @@ const OrderConfirmation = () => {
                 >
                   <span className="text-3xl font-bold text-yellow-800">S</span>
                 </motion.div>
-                
+
                 <motion.h2
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -145,7 +145,7 @@ const OrderConfirmation = () => {
                 >
                   🎉 Order Placed!
                 </motion.h2>
-                
+
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -160,7 +160,7 @@ const OrderConfirmation = () => {
                     <span className="text-lg font-semibold text-yellow-600">SuperCoins</span>
                   </div>
                 </motion.div>
-                
+
                 <motion.p
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -169,7 +169,7 @@ const OrderConfirmation = () => {
                 >
                   Use them for exclusive rewards!
                 </motion.p>
-                
+
                 <motion.button
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -184,7 +184,7 @@ const OrderConfirmation = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Breadcrumb */}
         <nav className="text-sm mb-4">
@@ -194,7 +194,7 @@ const OrderConfirmation = () => {
           <span className="mx-2 text-gray-400">›</span>
           <Link to="/dashboard?tab=orders" className="text-gray-500 hover:text-[#2874f0]">My Orders</Link>
           <span className="mx-2 text-gray-400">›</span>
-          <span className="text-gray-800">OD{order.id.toString().padStart(12, '0')}</span>
+          <span className="text-gray-800">{order.id}</span>
         </nav>
 
         <div className="flex flex-col lg:flex-row gap-4">
@@ -215,7 +215,7 @@ const OrderConfirmation = () => {
 
                   {/* Product Info */}
                   <div className="flex-1">
-                    <Link 
+                    <Link
                       to={`/products/${item.productId}`}
                       className="text-gray-800 hover:text-[#2874f0] font-medium"
                     >
@@ -236,17 +236,15 @@ const OrderConfirmation = () => {
                     <div className="flex flex-col items-center">
                       {statusSteps.map((step, index) => (
                         <div key={step.id} className="flex flex-col items-center">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                            step.completed || step.current
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${step.completed || step.current
                               ? 'bg-green-500 text-white'
                               : 'bg-gray-200 text-gray-400'
-                          }`}>
+                            }`}>
                             {step.completed || step.current ? '✓' : ''}
                           </div>
                           {index < statusSteps.length - 1 && (
-                            <div className={`w-0.5 h-12 ${
-                              step.completed ? 'bg-green-500' : 'bg-gray-200'
-                            }`}></div>
+                            <div className={`w-0.5 h-12 ${step.completed ? 'bg-green-500' : 'bg-gray-200'
+                              }`}></div>
                           )}
                         </div>
                       ))}
@@ -254,9 +252,8 @@ const OrderConfirmation = () => {
                     <div className="ml-4 flex-1">
                       {statusSteps.map((step, index) => (
                         <div key={step.id} className={`${index < statusSteps.length - 1 ? 'pb-8' : ''}`}>
-                          <p className={`font-medium text-sm ${
-                            step.completed || step.current ? 'text-gray-800' : 'text-gray-400'
-                          }`}>
+                          <p className={`font-medium text-sm ${step.completed || step.current ? 'text-gray-800' : 'text-gray-400'
+                            }`}>
                             {step.label}
                             {step.current && (
                               <span className="ml-2 text-xs text-gray-500">
@@ -271,7 +268,7 @@ const OrderConfirmation = () => {
                         </div>
                       ))}
                     </div>
-                  </div>  
+                  </div>
                 </div>
 
                 {/* See All Updates Link */}
@@ -312,9 +309,8 @@ const OrderConfirmation = () => {
                     onMouseLeave={() => setHoverRating(0)}
                     className="text-3xl transition-colors"
                   >
-                    <span className={`${
-                      star <= (hoverRating || userRating) ? 'text-yellow-400' : 'text-gray-300'
-                    }`}>
+                    <span className={`${star <= (hoverRating || userRating) ? 'text-yellow-400' : 'text-gray-300'
+                      }`}>
                       ★
                     </span>
                   </button>
@@ -326,7 +322,7 @@ const OrderConfirmation = () => {
             <div className="bg-white rounded-sm shadow-sm p-4">
               <p className="text-sm text-gray-500">
                 Order #{' '}
-                <span className="text-gray-800 font-medium">OD{order.id.toString().padStart(12, '0')}</span>
+                <span className="text-gray-800 font-medium">{order.id}</span>
                 <button className="ml-2 text-gray-400 hover:text-gray-600">
                   <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />

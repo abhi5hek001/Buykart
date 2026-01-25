@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const dispatch = useDispatch();
   const wishlistItems = useSelector(selectWishlistItems);
-  
+
   // Use the selected user from Redux instead of first user from API
   const user = useSelector(selectCurrentUser);
 
@@ -38,12 +38,12 @@ const Dashboard = () => {
 
   // Filter orders based on search and filters
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = searchQuery === '' || 
-      order.items?.some(item => 
+    const matchesSearch = searchQuery === '' ||
+      order.items?.some(item =>
         item.product?.name?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    
+
     let matchesTime = true;
     if (timeFilter !== 'all') {
       const orderDate = new Date(order.createdAt);
@@ -58,6 +58,9 @@ const Dashboard = () => {
     }
     return matchesSearch && matchesStatus && matchesTime;
   });
+
+  // Calculate total items count for the badge (matches the expanded item list)
+  const totalItemsCount = orders.reduce((sum, order) => sum + (order.items?.length || 0), 0);
 
   const handleMoveToCart = (item) => {
     dispatch(addToCart({ ...item, quantity: 1 }));
@@ -115,9 +118,9 @@ const Dashboard = () => {
             {/* User Card */}
             <div className="bg-white rounded-sm shadow-sm overflow-hidden">
               <div className="p-4 flex items-center gap-3 border-b border-gray-100">
-                <img 
-                  src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/profile-pic-male_4811a1.svg" 
-                  alt="Profile" 
+                <img
+                  src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/profile-pic-male_4811a1.svg"
+                  alt="Profile"
                   className="w-12 h-12"
                 />
                 <div>
@@ -132,11 +135,10 @@ const Dashboard = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-blue-50 text-[#2874f0] border-l-4 border-[#2874f0]'
-                        : 'text-gray-600 hover:bg-gray-50 border-l-4 border-transparent'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
+                      ? 'bg-blue-50 text-[#2874f0] border-l-4 border-[#2874f0]'
+                      : 'text-gray-600 hover:bg-gray-50 border-l-4 border-transparent'
+                      }`}
                   >
                     <img className="w-6 h-6" src={tab.url} alt={tab.label} />
                     <span className="font-medium text-sm">{tab.label}</span>
@@ -145,9 +147,9 @@ const Dashboard = () => {
                         {wishlistItems.length}
                       </span>
                     )}
-                    {tab.id === 'orders' && orders.length > 0 && (
+                    {tab.id === 'orders' && totalItemsCount > 0 && (
                       <span className="ml-auto bg-[#2874f0] text-white text-xs px-2 py-0.5 rounded-full">
-                        {orders.length}
+                        {totalItemsCount}
                       </span>
                     )}
                   </button>
@@ -361,59 +363,59 @@ const Dashboard = () => {
                         const statusInfo = getStatusInfo(order.status);
                         return (
                           <div key={`${order.id}-${idx}`} className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow">
-                          <div className="p-4 flex gap-4">
-                            {/* Product Image */}
-                            <Link to={`/products/${item.productId}`} className="shrink-0">
-                              <img
-                                src={item.product?.imageUrl || 'https://via.placeholder.com/100x100'}
-                                alt={item.product?.name}
-                                className="w-20 h-20 object-contain"
-                              />
-                            </Link>
-
-                            {/* Product Info */}
-                            <div className="flex-1 min-w-0">
-                              <Link 
-                                to={`/products/${item.productId}`}
-                                className="text-sm text-gray-800 hover:text-[#2874f0] line-clamp-1 font-medium"
-                              >
-                                {item.product?.name || `Product #${item.productId}`}
+                            <div className="p-4 flex gap-4">
+                              {/* Product Image */}
+                              <Link to={`/products/${item.productId}`} className="shrink-0">
+                                <img
+                                  src={item.product?.imageUrl || 'https://via.placeholder.com/100x100'}
+                                  alt={item.product?.name}
+                                  className="w-20 h-20 object-contain"
+                                />
                               </Link>
-                              <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
-                              <p className="text-sm font-semibold text-gray-900 mt-1">
-                                {formatPrice(item.priceAtPurchase)}
-                              </p>
-                            </div>
 
-                            {/* Status */}
-                            <div className="shrink-0 text-right min-w-[140px]">
-                              <div className="flex items-center gap-2 justify-end">
-                                <span className={`w-2 h-2 rounded-full ${statusInfo.bg}`}></span>
-                                <span className={`text-sm font-medium ${statusInfo.color}`}>
-                                  {statusInfo.text}
-                                </span>
+                              {/* Product Info */}
+                              <div className="flex-1 min-w-0">
+                                <Link
+                                  to={`/products/${item.productId}`}
+                                  className="text-sm text-gray-800 hover:text-[#2874f0] line-clamp-1 font-medium"
+                                >
+                                  {item.product?.name || `Product #${item.productId}`}
+                                </Link>
+                                <p className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</p>
+                                <p className="text-sm font-semibold text-gray-900 mt-1">
+                                  {formatPrice(item.priceAtPurchase)}
+                                </p>
                               </div>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })}
-                              </p>
-                            </div>
 
-                            {/* Actions */}
-                            <div className="shrink-0 flex flex-col gap-2 items-center justify-center">
-                              <Link to={`/order-confirmation/${order.id}`}>
-                                <button className="p-2 text-gray-400 hover:text-[#2874f0] transition-colors" title="View Details">
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                  </svg>
-                                </button>
-                              </Link>
+                              {/* Status */}
+                              <div className="shrink-0 text-right min-w-[140px]">
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span className={`w-2 h-2 rounded-full ${statusInfo.bg}`}></span>
+                                  <span className={`text-sm font-medium ${statusInfo.color}`}>
+                                    {statusInfo.text}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                  })}
+                                </p>
+                              </div>
+
+                              {/* Actions */}
+                              <div className="shrink-0 flex flex-col gap-2 items-center justify-center">
+                                <Link to={`/order-confirmation/${order.id}`}>
+                                  <button className="p-2 text-gray-400 hover:text-[#2874f0] transition-colors" title="View Details">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </button>
+                                </Link>
+                              </div>
                             </div>
                           </div>
-                        </div>
                         );
                       });
                     })}
@@ -485,9 +487,9 @@ const Dashboard = () => {
             {activeTab === 'account' && (
               <div className="bg-white rounded-sm shadow-sm">
                 <div className="p-4 border-b border-gray-100 flex items-center gap-4">
-                  <img 
-                    src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/profile-pic-male_4811a1.svg" 
-                    alt="Profile" 
+                  <img
+                    src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/profile-pic-male_4811a1.svg"
+                    alt="Profile"
                     className="w-14 h-14"
                   />
                   <div>
@@ -499,17 +501,17 @@ const Dashboard = () => {
                 {/* Quick Links */}
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex gap-4">
-                    <button 
+                    <button
                       onClick={() => setActiveTab('orders')}
                       className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-sm hover:bg-gray-100 transition-colors flex-1"
                     >
                       <img src="my-orders.png" alt="Orders" className="w-6 h-6" />
                       <div className="text-left">
                         <p className="text-sm font-medium text-gray-800">My Orders</p>
-                        <p className="text-xs text-gray-500">{orders.length} orders</p>
+                        <p className="text-xs text-gray-500">{totalItemsCount} items</p>
                       </div>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setActiveTab('wishlist')}
                       className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-sm hover:bg-gray-100 transition-colors flex-1"
                     >
