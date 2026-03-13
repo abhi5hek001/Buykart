@@ -48,21 +48,21 @@ jobs:
           docker network create buykart-network 2>/dev/null || true
 
           # 2. Stop and remove old containers
-          docker rm -f dev dev-redis 2>/dev/null || true
+          docker rm -f buykart-dev 2>/dev/null || true
               
-          # 3. Start Redis
-          docker run -d --name dev-redis --network buykart-network --restart always -p 6379:6379 redis:alpine
-
-          # 4. Pull and Start Backend
+          # 3. Pull and Start Backend
           docker pull abhi5hek001/buykart-backend:latest
+
+          # 4. Run the container
           docker run -d \
-            --name dev \
+            --name buykart-dev \
             --network buykart-network \
             --restart always \
-            --env-file /home/${{ secrets.EC2_USERNAME }}/dev/.env \
-            -p 3000:3000 \
+            --env-file /home/${{ secrets.EC2_USERNAME }}/buykart/.env \
+            -p 3001:3000 \
             abhi5hek001/buykart-backend:latest
 
           # 5. CLEANUP: Delete all unused/dangling images
           docker image prune -af
+
           EOF
