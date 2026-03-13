@@ -44,6 +44,48 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
+app.get("/", (req, res) => {
+    res.send(`
+      <html>
+        <head>
+          <style>
+            body {
+              background-color: black;
+              color: white;
+              display: flex;
+              flex-direction: column;
+              height: 100vh;
+              justify-content: center;
+              align-items: center;
+              font-family: Arial, sans-serif;
+              font-size: 2rem;
+              text-align: center;
+            }
+            a {
+              margin-top: 20px;
+              color: #4CAF50;
+              text-decoration: none;
+              font-size: 1.2rem;
+              border: 2px solid #4CAF50;
+              padding: 10px 20px;
+              border-radius: 5px;
+              transition: 0.3s;
+            }
+            a:hover {
+              background-color: #4CAF50;
+              color: black;
+            }
+          </style>
+        </head>
+        <body>
+          <div>
+            <h1>Welcome to Buykart</h1>
+          </div>
+        </body>
+      </html>
+    `);
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
