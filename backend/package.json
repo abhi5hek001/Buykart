@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node app.js",
+    "postinstall": "prisma generate",
     "seed": "node seed/index.js",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset"

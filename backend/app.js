@@ -23,6 +23,7 @@ app.set('trust proxy', 1);
 // Middleware
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'https://buykart-backend.vercel.app',
   'http://localhost:5173',
   'http://localhost:4173',
 ];
@@ -116,10 +117,11 @@ app.use((req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`
+// Start server (skip when running as a Vercel serverless function)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
 ║   🛒 Buykart Backend API Server                   ║
@@ -129,6 +131,7 @@ app.listen(PORT, "0.0.0.0", () => {
 ║                                                   ║
 ╚═══════════════════════════════════════════════════╝
     `);
-});
+  });
+}
 
 module.exports = app;
